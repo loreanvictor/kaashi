@@ -71,7 +71,7 @@ Some array operations:
   filter[F]: {
     [{x, ...rest}]: {
       { x, ...filter[F][rest] }  | x is F;                        // --> this is equivalent to `F[x]` or `x F` or `x --> F`
-      { ...filter[F][rest] }     | otherwise;
+      filter[F][rest]            | otherwise;
     };
 
     [{}]: {};                                                     // --> empty array for empty array
