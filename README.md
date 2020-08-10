@@ -112,5 +112,30 @@ A vector definition:
     / [k | k is number]: this * (1 / k);
     ^ : l --> map[[x]: x / (len this)] --> vec[N];
   };
+
+  vec[2][{x, y}]:: {x: x, y: y};
+  vec[2][{x: x, y: y}]: vec[2][{x, y}];
+}
+```
+
+<br>
+And even crazier stuff:
+```kaashi
+{
+  combinable: {
+    o[F][x]: F[this[x]];
+  }
+}
+```
+```kaashi
+{
+  F[X]: X + 3; // --> or any arbitrary function
+  G[X]: X * 2; // --> or any arbitrary function
+
+  combinable: combinable @from['./combinable.kaashi'];
+  F::combinable;
+  G::combinable;
+
+  H: F o G;     // --> H[X]: (3 * x) + 3;
 }
 ```
