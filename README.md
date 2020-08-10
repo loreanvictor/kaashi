@@ -120,6 +120,7 @@ A vector definition:
 
 <br>
 And even crazier stuff:
+
 ```kaashi
 {
   combinable: {
@@ -132,9 +133,8 @@ And even crazier stuff:
   F[X]: X + 3; // --> or any arbitrary function
   G[X]: X * 2; // --> or any arbitrary function
 
-  combinable: combinable @from['./combinable.kaashi'];
-  F::combinable;
-  G::combinable;
+  F::combinable @from['./combinable.kaashi'];
+  G::combinable @from['./combinable.kaashi'];
 
   H: F o G;     // --> H[X]: (3 * x) + 3;
 }
