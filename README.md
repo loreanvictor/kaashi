@@ -15,7 +15,7 @@ not cherish a JSON-like notation.
 
 Factoriel function / dataset:
 
-```js
+```kaashi
 {
   !: {
     0: 1;
@@ -26,7 +26,7 @@ Factoriel function / dataset:
 <br>
 Fibbonacci sequence:
 
-```js
+```kaashi
 {
   fib[1]: 1;
   fib[2]: 1;
@@ -36,7 +36,7 @@ Fibbonacci sequence:
 
 Alternative definition:
 
-```js
+```kaashi
 {
   fib[n | (n is number) and (n > 0)]: {
     1                         | n = 1;
@@ -49,7 +49,7 @@ Alternative definition:
 
 Some array operations:
 
-```js
+```kaashi
 {
   /*
    * sum of all elements of an array
@@ -62,7 +62,7 @@ Some array operations:
   /*
    * mapping
    */
-  map[F][l][i | (i is number) and (i < l.length)]: F[l[i]];
+  map[F][l][i | (i is number) and (i < l.length)]: F[l[i], i];
   map[F][l]:: { length: l.length };                               // --> object extension
 
   /*
@@ -83,6 +83,34 @@ Some array operations:
   reduce[F, I (default 0)]: {
     [{}]: I;
     [{x, ...rest}]: F[reduce[rest, I], x];
+  };
+}
+```
+<br>
+
+A vector definition:
+
+```kaashi
+{
+  sqrt: sqrt @from['https://some.server/math.kaashi'];
+  { map: map, sum: sum }: @from['./array-operations.kaashi'];
+
+  vec[N | N is number]
+     [l | l.length = N]: {
+    dimension: N;
+    len: l --> map[[x]: x * x] --> sum --> sqrt;
+    
+    + [o | o.dimension = N]: l map[[x, i]: o[i] + x] vec[N];
+    + :: this;
+
+    - [o | o.dimension = N]: l map[[x, i]: o[i] - x] vec[N];
+    - [i | i is number]: -l[i];
+    - :: this;
+
+    * [k | k is number]: l map[* k] --> vec[N];
+    * [o | o.dimension = N]: l --> map[[x, i]: o[i] * x] sum;
+    / [k | k is number]: this * (1 / k);
+    ^ : l --> map[[x]: x / (len this)] --> vec[N];
   };
 }
 ```
