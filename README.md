@@ -59,10 +59,10 @@ format for that particular platform.
   //
   // import data
   //
-  loadCSV: @from['https://kaashi.dev/csv.ka'];
+  CSV: @from['https://kaashi.dev/csv.ka'];
 
-  DATA: loadCSV['https://my.cluster.cloud/logs/cpu.csv'];
-  NODES: loadCSV['https://my.clusetr.cloud/topology/nodes'];
+  DATA: CSV['https://my.cluster.cloud/logs/cpu.csv'];
+  NODES: CSV['https://my.clusetr.cloud/topology/nodes'];
 
   //
   // calculate stuff
