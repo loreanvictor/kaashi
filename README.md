@@ -92,8 +92,8 @@ A vector definition:
 
 ```kaashi
 {
-  sqrt: sqrt @from['https://some.server/math.kaashi'];
-  { map: map, sum: sum }: @from['./array-operations.kaashi'];
+  sqrt: sqrt @from['https://some.server/math.ka'];
+  { map: map, sum: sum }: @from['./array-operations.ka'];
 
   vec[N | N is number]
      [l | l.length = N]: {
@@ -133,8 +133,8 @@ And even crazier stuff:
   F[X]: X + 3; // --> or any arbitrary function
   G[X]: X * 2; // --> or any arbitrary function
 
-  F::combinable @from['./combinable.kaashi'];
-  G::combinable @from['./combinable.kaashi'];
+  F::combinable @from['./combinable.ka'];
+  G::combinable @from['./combinable.ka'];
 
   H: F o G;     // --> H[X]: (3 * x) + 2;
 }
