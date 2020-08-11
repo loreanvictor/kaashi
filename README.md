@@ -139,3 +139,24 @@ And even crazier stuff:
   H: F o G;     // --> H[X]: (3 * x) + 2;
 }
 ```
+
+## State of the Project
+
+This project is in _idea_ stage, i.e. the basic idea is documented (the [inspiring examples](#inspiring-examples) above). The syntax needs to be properly documented (I have started on that front, though it takes some time to get cozy with ABNF), the semantics need to be properly documented afterwards, etc, but I feel these examples do outline enough of the idea to be able to move forward.
+
+So if you have time and interest in helping with this project, all kinds of help/input is much appreciated. The main work that needs to be done is as follows:
+
+- **Syntax Specification**\
+  Currently ABNF is picked as specification format, open to discussion)
+
+- **Semantic Specification**\
+  No format / methodology chosen, open to discussion
+
+- **Reference Implementation**\
+  A (not necessarily optimal) reference implementation would be greatly beneficial. Ideally this reference implementation should be written in JavaScript / TypeScript or in a manner compilable to WASM so that it allows easy implementation of a web-based playground.
+
+- **Usable Implementation**\
+  An implementation targeting a particular use case. What that use-case will be or in which environment / form the implementation will be (a standalone service/runtime, an integratable library targeting one or many specific languages, etc.) is open for discussion. The main aim of this particular endeavour is not necessarily to build a usable product out of the language but rather to further investigate necessary modifications / optimizations to syntax / semantics of Kāshi in a more realistic environment. Of course proper pursuit of that goal does entail somewhat trying to get a useful product out of it as well.
+
+Since the project is in ideation stage, everything is open for discussion. Do not hesitate to open an issue for any form of question / feedback / etc. Also you can contact me on ghanizadeh.eugene@gmail.com.
+  
