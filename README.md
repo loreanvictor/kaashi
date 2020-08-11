@@ -166,7 +166,7 @@ Alternative definition:
   vec[N | N is number]
      [l | l.length = N]: {
     dimension: N;
-    len: l --> map[[x]: x * x] --> sum --> sqrt;
+    len: l --> map[^ 2] --> sum --> sqrt;
     
     + [o | o.dimension = N]: l map[[x, i]: o[i] + x] --> vec[N];
     + :: this;
@@ -178,7 +178,7 @@ Alternative definition:
     * [k | k is number]: l map[* k] --> vec[N];
     * [o | o.dimension = N]: l --> map[[x, i]: o[i] * x] --> sum;
     / [k | k is number]: this * (1 / k);
-    ^ : l --> map[[x]: x / (len this)] --> vec[N];
+    ^ : l --> map[ / (len this)] --> vec[N];
   };
 
   vec[2][{x, y}]:: {x: x, y: y};
