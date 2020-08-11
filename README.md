@@ -17,7 +17,7 @@ format for that particular platform.
 ```js
 {
   prod: true;
-  root: $PATH + './dist';
+  root: $PWD + './dist';
   port: {
     $PORT | $PORT != undefined;
     3000  | otherwise;
