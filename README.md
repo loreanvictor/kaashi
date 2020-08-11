@@ -198,7 +198,7 @@ Alternative definition:
   }
 }
 ```
-```kaashi
+```js
 {
   F[X]: X + 3; // --> or any arbitrary function
   G[X]: X * 2; // --> or any arbitrary function
