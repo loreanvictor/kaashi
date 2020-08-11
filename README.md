@@ -23,7 +23,7 @@ format for that particular platform.
     3000  | otherwise;
   };
   middlewares: {
-    '/users': { 'auth', 'admin' },
+    '/users': { 'auth', 'admin' }, // arrays
     '/profile': { 'auth' }, 
   },
 
