@@ -147,10 +147,10 @@ This project is in _idea_ stage, i.e. the basic idea is documented (the [inspiri
 So if you have time and interest in helping with this project, all kinds of help/input is much appreciated. The main work that needs to be done is as follows:
 
 - **Syntax Specification**\
-  Currently ABNF is picked as specification format, open to discussion)
+  Currently ABNF is picked as specification format, open to discussion.
 
 - **Semantic Specification**\
-  No format / methodology chosen, open to discussion
+  No format / methodology chosen, open to discussion.
 
 - **Reference Implementation**\
   A (not necessarily optimal) reference implementation would be greatly beneficial. Ideally this reference implementation should be written in JavaScript / TypeScript or in a manner compilable to WASM so that it allows easy implementation of a web-based playground.
