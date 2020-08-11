@@ -82,7 +82,7 @@ Some array operations:
    */
   reduce[F, I (default 0)]: {
     [{}]: I;
-    [{x, ...rest}]: F[reduce[rest, I], x];
+    [{x, ...rest}]: F[reduce[F, I][rest], x];
   };
 }
 ```
