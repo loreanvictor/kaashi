@@ -13,9 +13,75 @@ format for that particular platform.
 
 ### Inspiring Examples
 
-Factoriel function / dataset:
+- Simple config:
+```js
+{
+  prod: true;
+  root: $PATH + './dist';
+  port: {
+    $PORT | $PORT != undefined;
+    3000  | otherwise;
+  };
+  middlewares: {
+    '/users': { 'auth', 'admin' },
+    '/profile': { 'auth' }, 
+  },
 
-```kaashi
+  //
+  // also some function-like configuration values
+  //
+  logFormat: {
+    warning: [msg, time]: 'WARNING: ' + msg;
+    error: [msg, time]: `ERROR ({time format['yy/MM/dd; hh:MM']}): ` + msg;
+  };
+
+  //
+  // importing
+  //
+  format: formatDate @from['https://kaashi.dev/date.ka'];
+}
+```
+<br>
+
+- Data fetching / processing:
+```js
+{
+  //
+  // import useful functions
+  //
+  ops: @from['./array-operations.ka'];
+  map: ops.map;
+  filter: ops.filter;
+  sum: ops.sum;
+
+  mean[l]: sum[l] / l.length;
+
+  //
+  // import data
+  //
+  loadCSV: @from['https://kaashi.dev/csv.ka'];
+
+  DATA: loadCSV['https://my.cluster.cloud/logs/cpu.csv'];
+  NODES: loadCSV['https://my.clusetr.cloud/topology/nodes'];
+
+  //
+  // calculate stuff
+  //
+  overloadedNodes:
+    NODES
+    --> map[[node]: { node, DATA --> filter[[row]: row.id = node.id] --> mean }
+    --> filter[[{node, mean}]: mean > $OVERLOAD_THRESHOLD]
+    --> map[[{node}]: node]
+  ;
+}
+```
+<br>
+
+More abstract examples to demonstrate syntactic capabilities:
+
+- Factoriel function / dataset:
+
+```js
 {
   !: {
     0: 1;
@@ -24,9 +90,10 @@ Factoriel function / dataset:
 }
 ```
 <br>
-Fibbonacci sequence:
 
-```kaashi
+- Fibbonacci sequence:
+
+```js
 {
   fib[1]: 1;
   fib[2]: 1;
@@ -36,7 +103,7 @@ Fibbonacci sequence:
 
 Alternative definition:
 
-```kaashi
+```js
 {
   fib[n | (n is number) and (n > 0)]: {
     1                         | n = 1;
@@ -47,9 +114,10 @@ Alternative definition:
 ```
 <br>
 
-Some array operations:
+- Array operations:
 
-```kaashi
+```js
+// array-operations.ka
 {
   /*
    * sum of all elements of an array
@@ -88,9 +156,9 @@ Some array operations:
 ```
 <br>
 
-A vector definition:
+- A geometric vector _type_:
 
-```kaashi
+```js
 {
   sqrt: sqrt @from['https://some.server/math.ka'];
   { map: map, sum: sum }: @from['./array-operations.ka'];
@@ -100,15 +168,15 @@ A vector definition:
     dimension: N;
     len: l --> map[[x]: x * x] --> sum --> sqrt;
     
-    + [o | o.dimension = N]: l map[[x, i]: o[i] + x] vec[N];
+    + [o | o.dimension = N]: l map[[x, i]: o[i] + x] --> vec[N];
     + :: this;
 
-    - [o | o.dimension = N]: l map[[x, i]: o[i] - x] vec[N];
+    - [o | o.dimension = N]: l map[[x, i]: o[i] - x] --> vec[N];
     - [i | i is number]: -l[i];
     - :: this;
 
     * [k | k is number]: l map[* k] --> vec[N];
-    * [o | o.dimension = N]: l --> map[[x, i]: o[i] * x] sum;
+    * [o | o.dimension = N]: l --> map[[x, i]: o[i] * x] --> sum;
     / [k | k is number]: this * (1 / k);
     ^ : l --> map[[x]: x / (len this)] --> vec[N];
   };
@@ -119,9 +187,11 @@ A vector definition:
 ```
 
 <br>
-And even crazier stuff:
 
-```kaashi
+- Operator overloading for achieving _function_ combination via standard mathematical syntax:
+
+```js
+// combinable.ka
 {
   combinable: {
     o[F][x]: F[this[x]];
@@ -139,6 +209,8 @@ And even crazier stuff:
   H: F o G;     // --> H[X]: (3 * x) + 2;
 }
 ```
+
+<br><br>
 
 ## State of the Project
 
