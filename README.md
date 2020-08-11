@@ -6,7 +6,7 @@ A turing complete JSON-like declarative language for data/config description.
 ## Why?
 
 Really out of curiosity, to see what happens with such a language if it is designed in a convenient enough manner.
-We suspect that this language will be useful for configuration management on large scale systems with pretty complex
+I suspect that this language will be useful for configuration management on large scale systems with pretty complex
 configuration. We also suspect it might be useful in data-analysis. Originally, it was designed as a language for UI description,
 though we later realized that all sorts of UI developers are already pretty comfortable with XML-based syntaxes and do
 not cherish a JSON-like notation.
@@ -136,6 +136,6 @@ And even crazier stuff:
   F::combinable @from['./combinable.kaashi'];
   G::combinable @from['./combinable.kaashi'];
 
-  H: F o G;     // --> H[X]: (3 * x) + 3;
+  H: F o G;     // --> H[X]: (3 * x) + 2;
 }
 ```
