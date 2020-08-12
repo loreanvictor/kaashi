@@ -18,10 +18,7 @@ format for that particular platform.
 {
   prod: true;
   root: $PWD + './dist';
-  port: {
-    $PORT | $PORT != undefined;
-    3000  | otherwise;
-  };
+  port: $PORT || 3000;
   middlewares: {
     '/users': { 'auth', 'admin' }, // arrays
     '/profile': { 'auth' }, 
