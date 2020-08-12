@@ -206,6 +206,22 @@ Alternative definition:
   H: F o G;     // --> H[X]: (3 * x) + 2;
 }
 ```
+Alternative short-hand for `combinable.ka`:
+```js
+{
+  combinable: {
+    o[F]: --> this --> F;
+
+    //
+    // so some explanation here:
+    // `a b c` is mostly equivalent to `c[b][a]` (or `c.b[a]` if `b` is key of `c` and so on)
+    // `a --> b --> c` is equivalent to `c[b[a]]`
+    // `--> F` (as stand-alone expression) is equivalent to `[x]: F[x]`
+    // `x -->` (as stand-alone expression) is equivalent to `[F]: F[x]`
+    //
+  }
+}
+```
 
 <br><br>
 
