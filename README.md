@@ -217,7 +217,7 @@ Alternative short-hand for `combinable.ka`:
     // `a b c` is mostly equivalent to `c[b][a]` (or `c.b[a]` if `b` is key of `c` and so on)
     // `a --> b --> c` is equivalent to `c[b[a]]`
     // `--> F` (as stand-alone expression) is equivalent to `[x]: x --> F` (`F` expanded by `-->`)
-    // `x -->` (as stand-alone expression) is equivalent to `[F]: x --> F` (`F` expanded by `-->`)
+    // `x -->` (as stand-alone expression) is equivalent to `[F]: x --> F` (`x` expanded by `-->`)
     //
   }
 }
