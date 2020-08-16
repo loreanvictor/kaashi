@@ -1,7 +1,9 @@
 ; Specification for this document:
 ; https://tools.ietf.org/html/rfc5234
 
-; # Basic Value types
+; # Primitive values
+
+primitive = boolean / number / string
 
 ; ## Numbers
 
@@ -28,3 +30,37 @@ string = (squote *char-not-squote squote) / (dquote *char-not-dquote dquote);
 true = %s"true";
 false = %s"false";
 boolean = true / false;
+
+; # Expressions and Compound Values
+
+single-expr = object / primitive / identifier
+expr = single-expr / ( expr "." identifier ) / ( expr "[" LWSP expr LWSP "]" ) / ( expr WSP expr ) / ( "(" LWSP exp LWSP ")" )
+
+; ## Identifiers
+; DISCUSSION: we can add more chars. also we have option 
+; to loose and just except the special chars (quotes, dots
+; and colon) which is not recommmended.
+
+special-char-identifier = "+" / "-" / "*" / "/" / ">" / "<" / "=" / "!" / "@" / "#" / "$" / "%" / "^" / "&" / "(" / ")" / "_" 
+char-identifier = ALPHA / special-char-identifier
+identifier = (ALPHA / special-char-identifier) *(ALPHA / special-char-identifier / DIGIT)
+
+; ## Object
+; TODO add unboxing for constant-keys
+constant-key = primitive / identifier *( "." identifier )
+parameteric-key = [constant-key / parameteric-key] "[" LWSP args [ "|" expr ] LWSP "]"
+
+arg = identifier / ( "..." identifier ) / ( "{" LWSP args LWSP "}" ) / ( constant-key LWSP ":" LWSP arg )
+args = arg LWSP *(delimiter LWSP args)
+
+definition = key LWSP ":" LWSP expr
+; DISCUSSION: we can consider this semantically, by allowing
+; optional keys for both definition and extension
+extension = [key] LWSP "::" LWSP expr 
+
+lambda-object = definition
+trivial-definition = expr
+
+delimiter =  ";" | ","
+object-entry = (definition  / extension / trivial-definition)
+object = "{" LWSP [object-entry *(LWSP delimiter LWSP object-entry)] LWSP "}" / lambda-object
