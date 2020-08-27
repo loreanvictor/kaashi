@@ -25,8 +25,6 @@ number = *digit ["." 1*digit]
 ; but it is highly recommended for all parser / compilers
 ; to support a more encompassing encoding such as utf-8
 
-; DISCUSSION: do we need string escape? we currently don't have
-
 squote = "'" ; single quote
 dquote = %x22 ; double quote 
 char-not-squote = %x01-26 / %x28-7F; all characters except NULL and single quote
@@ -47,29 +45,16 @@ expr = single-expr / ( expr "." identifier ) / ( expr "[" whitespace-optional ex
 
 ; ## Identifiers
 
-; DISCUSSION: we can add more chars. also we have option 
-; to loose and just except the special chars (quotes, dot,
-; braces, brackets, parantheses and colon) which is not recommmended.
-
 alpha =  %x41-5A / %x61-7A ; A-Z / a-z
 char-identifier-operators = "+" / "-" / "*" / "/" / ">" / "<" / "=" / "!" / "@" / "#" / "$" / "%" / "^" / "&" / "|" / "\" / "_" 
 identifier = (alpha / char-identifier-operators) *(alpha / char-identifier-operators / digit)
 
 ; ## Object
 
-; DISCUSSION: the syntax for unboxed-key is not obvious
-; specifically, key-values of unbox-entry aren't obvious
-; that which one is dummy and which one is bound.
-
 unbox-entry = ( constant-key whitespace-optional ":" whitespace-optional constant-key ) / constant-key
 unboxed-key = "{" whitespace-optional [unbox-entry *(whitespace-optional delimiter whitespace-optional unbox-entry)] whitespace-optional "}"
 constant-key = primitive / identifier *( "." identifier )
 
-; DISCUSSION: do we need something like constant after 
-; paremeteric key? (we currently don't have)
-; {
-;    [x].twice : x * 2
-; }
 parameteric-key = [constant-key / parameteric-key] "[" whitespace-optional parameteric-args [ "|" expr ] whitespace-optional "]"
 parameteric-arg = identifier / ( "..." identifier ) / ( "{" whitespace-optional parameteric-args whitespace-optional "}" ) / ( constant-key whitespace-optional ":" whitespace-optional parameteric-arg )
 parameteric-args = parameteric-arg whitespace-optional *(delimiter whitespace-optional parameteric-args)
