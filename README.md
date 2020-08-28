@@ -6,7 +6,7 @@ A turing complete JSON-like declarative language for data/config description.
 ## Why?
 
 Really out of curiosity, to see what happens with such a language if it is designed in a convenient enough manner.
-I suspect that this language will be useful for configuration management on large scale systems with pretty complex
+We suspect that this language will be useful for configuration management on large scale systems with pretty complex
 configuration. We also suspect it might be useful in data-analysis. Originally, it was designed as a language for Android UI description
 (as part of Inline-Apps platform of [CafeBazaar](https://github.com/cafebazaar)), though it was later swapped for a custom XML-based
 format for that particular platform.
