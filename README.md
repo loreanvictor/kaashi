@@ -5,9 +5,12 @@ A turing complete JSON-like declarative language for data/config description.
 
 ## Why?
 
-Really out of curiosity, to see what happens with such a language if it is designed in a convenient enough manner.
-We suspect that this language will be useful for configuration management on large scale systems with pretty complex
-configuration. We also suspect it might be useful in data-analysis. Originally, it was designed as a language for Android UI description
+Out of curiosity. We suspect such a language might be useful in managing complex configuration or in data processing analysis.
+See [Design Goals](#design-goals) section below for more information on what we (currently) envision Kāshi to be.
+
+### History
+
+Originally, Kāshi was designed as a language for Android UI description
 (as part of Inline-Apps platform of [CafeBazaar](https://github.com/cafebazaar)), though it was later swapped for a custom XML-based
 format for that particular platform.
 
@@ -222,6 +225,56 @@ Alternative short-hand for `combinable.ka`:
   }
 }
 ```
+
+<br><br>
+
+## Design Goals
+
+We want Kāshi to provide:
+1. **Convenient Direct and Indirect Data Description** \
+  At its core, Kāshi should be a more convenient format compared to JSON. Indirection allows for abstraction and reusability,
+  which should make description of lots of intertwined and interdependent data more convenient, efficient and safe (e.g. complex
+  configurations).
+
+1. **Purity and Immutability** \
+  This allows for option of full lazy evaluation and optimizations such as memoization. This also allows
+  for seamless distribution of computation and parallelization. For example, Kāshi should be a language where map-reduce computations
+  can be easily and intuitively described with seamless parallelization and node failure-recover (even on reduction) feasible.
+  ```js
+  {
+    map[words][i]: { key: words[i], value: 1 };
+
+    reduce[word, {count, ...rest}]: { key: word, sum: count + reduce[word, rest] };
+    reduce[word, {}]: { key: word, sum: 0 };
+  }
+  ```
+3. **Syntactic Flexibility** \
+  Kāshi should have minimal but highly combinable syntax rules, which allow exceeding flexibility on defining custom operations suitable
+  for particular domains of applicability. The _geometric vector_ and _function combination notation_ in [inspiring examples](#inspiring-examples)
+  are examples of this flexibility. For another example, consider the following:
+  ```js
+  index[x][l]: ...        // computes index of x in l
+  ```
+  ```js
+  of_able: { of: this --> };
+  in_able: { in: this --> };
+  ```
+  ```js
+  X: ...                  // some value
+  L: ...                  // some list
+
+  X::of_able;             // extend X to enable `of X` syntax
+  L::in_able;             // extend L to enable `in L` syntax
+
+  I: (index of X) in L;   // customized syntax
+  ```
+4. **Computational Limitability** \
+  Kāshi's syntax should allow for syntactic checks that limit computational complexity of evaluating described data, without
+  forcing unintuitive representation of computations within such a complexity bound. Most notably, it is highly desirable
+  that _useful_ total functions have intuitive representations in Kāshi that can be syntactically proven to be total (ideally
+  holding true for the most intuitive and simple representation of such functions). What _useful_ functions are depends on
+  application domain. This property provides safety of utilizing Kāshi in contexts where full Turing-completeness is not needed
+  or safety of execution is highly desirable.
 
 <br><br>
 
