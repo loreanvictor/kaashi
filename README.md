@@ -5,7 +5,7 @@ A turing complete JSON-like declarative language for data/config description.
 
 ## Why?
 
-Out of curiosity. We suspect such a language might be useful in managing complex configuration or in data processing analysis.
+Out of curiosity. We suspect such a language might be useful in managing complex configuration or in data processing / analysis.
 See [Design Goals](#design-goals) section below for more information on what we (currently) envision Kāshi to be.
 
 ### History
