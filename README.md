@@ -155,6 +155,45 @@ Alternative definition:
 }
 ```
 <br>
+- Search/sort algorithms:
+
+```js
+{
+  qsort: {                             // --> quick sort
+    [{}]: {};                          // --> empty array is sorted
+    [{x, ...rest}]: {
+      ...(rest --> filter[[y]: y < x] --> qsort),
+      x,
+      ...(rest --> filter[[y]: y > x] --> qsort)
+    }
+  };
+
+  merge: {                             // --> merges two sorted arrays, keeping them sorted
+    [{a, ...ar}, {b, ...br}]: {
+      { a, ...merge[ar, {b, ...br}] }  | a < b;
+      { b, ...merge[{a, ...ar}, br] }  | otherwise;
+    };
+    [l, {}]: l;
+    [{}, l]: l;
+  };
+
+  sort: {                              // --> merge sort
+    [{}]: {};
+    [{...left, ...right}]: merge[left sort, right sort];
+  };
+
+  contains[x]: {                       // --> is `true` if given sorted list contains `x`, `false` otherwise
+    [{}]: false;                       // --> empty list doesn't contain x
+    [{...left, center, ...right}]: {   // --> basically, binary searching
+      true              | x = center;
+      left contains[x]  | x < center;
+      right contains[x] | x > center;
+    }
+  };
+}
+```
+
+<br>
 
 - A geometric vector _type_:
 
