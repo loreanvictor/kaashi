@@ -155,8 +155,8 @@ Alternative definition:
 }
 ```
 <br>
-- Search/sort algorithms:
 
+- Search/sort algorithms:
 ```js
 {
   qsort: {                             // --> quick sort
