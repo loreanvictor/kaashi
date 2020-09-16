@@ -3,69 +3,90 @@
 ; # Core ABNF rules
 ; !syntax("abnf")
 
-; # Ignorables (whitespace and comments)
-whitespace-char = %x09-0D / " "
-whitespace-optional =  *whitespace-char ; optional whitespace
-whitespace = 1*whitespace-char ; necessary whitespace
 
-; TODO comment
+; # Lexical
+; ## Ignorables (whitespace and comments)
 
-; # Primitive values
+whitespace = %x09-0D / " "
 
-primitive = boolean / number / string
+not-newline = %x01-09 / %x0B-7F
+singleline-comment = "//" *(not-newline)
 
-; ## Numbers
+not-star = %x01-29 / %x2B-7F
+not-slash = %x01-2E / %x30-7F
+multiline-comment = "/*" *(not-star / ("*" not-slash)) "*/"
 
+comment = singleline-comment / multiline-comment
+s =  *(whitespace / comment) ; space
+
+; ## Values
+
+; ### Numbers
 digit = %x30-39
-number = *digit ["." 1*digit]
+Number = *digit ["." 1*digit]
+; TODO hex, binary?
 
-; ## Strings
-;
-; For simplicity only ASCII characters are defined here,
-; but it is highly recommended for all parser / compilers
-; to support a more encompassing encoding such as utf-8
+; ### Strings
+not-squote = %x01-26 / %x28-7F
+not-dquote = %x01-21 / %x23-7F
 
-squote = "'" ; single quote
-dquote = %x22 ; double quote 
-char-not-squote = %x01-26 / %x28-7F; all characters except NULL and single quote
-char-not-dquote = %x01-21 / %x23-7F; all characters except NULL and double quote
+common-escapes = "\" ("\" / "/" / "b" / "n" / "r" / "t" / ("u" 4*hex))
+squote-string = "'" *(char-not-squote / "\'" / common-escapes) "'"
+dquote-string = %x22 *(char-not-dquote / "\" %x22 / common-escapes) %x22
+aquote-string = "`" *(not-aquote-dollar-slash / (not-dollar / "$" not-lacolade)) ("`" / "${")
+; TODO string templates
 
-string = (squote *char-not-squote squote) / (dquote *char-not-dquote dquote)
-
-; ## Boolean
-
+; ### Boolean
 true = "true"
 false = "false"
-boolean = true / false
 
-; # Expressions and Compound Values
-
-single-expr = object / primitive / identifier
-expr = single-expr / ( expr "." identifier ) / ( expr "[" whitespace-optional expr whitespace-optional "]" ) / ( expr whitespace expr ) / ( "(" whitespace-optional expr whitespace-optional ")" )
-
-; ## Identifiers
-
+; ## Identifier
 alpha =  %x41-5A / %x61-7A ; A-Z / a-z
-char-identifier-operators = "+" / "-" / "*" / "/" / ">" / "<" / "=" / "!" / "@" / "#" / "$" / "%" / "^" / "&" / "|" / "\" / "_" 
-identifier = (alpha / char-identifier-operators) *(alpha / char-identifier-operators / digit)
+symbols = "+" / "-" / "*" / "/" / ">" / "<" / "=" / "!" / "@" / "#" / "$" / "%" / "^" / "&" / "|" / "\" / "_"
+identifier = (alpha / symbols) *(alpha / symbols / digit)
+
+; ## Operators and Symbols
+dot = "."
+lb = "["
+rb = "]"
+lp = "("
+rp = ")"
+la = "{"
+ra = "}"
+colon = ":"
+dcolon = "::"
+dots = "..."
+delimiter =  ";" / ","
+eq = "="
+vbar = "|"
+; # Parsing
+; ## Primitive Values
+
+string = squote-string / dquote-string
+boolean = true / false
+primitive = boolean / number / string
+
+; ## Expressions and Compound Values
+single-expr = object / primitive / identifier
+expr = single-expr / ( expr dot identifier ) / ( expr lb s expr s rb ) / ( expr whitespace s expr ) / ( lp s expr s rp )
+
 
 ; ## Object
 
-unbox-entry = ( constant-key whitespace-optional ":" whitespace-optional constant-key ) / constant-key
-unboxed-key = "{" whitespace-optional [unbox-entry *(whitespace-optional delimiter whitespace-optional unbox-entry)] whitespace-optional "}"
-constant-key = primitive / identifier *( "." identifier )
+unbox-entry = ( constant-key s colon s constant-key ) / constant-key
 
-parameteric-key = [constant-key / parameteric-key] "[" whitespace-optional parameteric-args [ "|" expr ] whitespace-optional "]"
-parameteric-arg = identifier / ( "..." identifier ) / ( "{" whitespace-optional parameteric-args whitespace-optional "}" ) / ( constant-key whitespace-optional ":" whitespace-optional parameteric-arg )
-parameteric-args = parameteric-arg whitespace-optional *(delimiter whitespace-optional parameteric-args)
+parameteric-arg = ([dots] identifier[ s eq s expr]) / ( la s parameteric-args s ra ) / ( constant-key s colon s parameteric-arg )
+parameteric-args = parameteric-arg s *(delimiter s parameteric-args)
 
+unboxed-key = [constant-key] la s [unbox-entry *(s delimiter s unbox-entry)] s ra
+constant-key = primitive / identifier *( dot identifier )
+parameteric-key = [constant-key / parameteric-key] lb s parameteric-args [ vbar expr ] s rb *( dot identifier )
 key = constant-key / parameteric-key / unboxed-key
 
-definition = key whitespace-optional ":" whitespace-optional expr
-extension = [key] whitespace-optional "::" whitespace-optional expr 
+definition = key s colon s expr
+extension = [key] s dcolon s expr
 indexed-definition = expr
 
-delimiter =  ";" / ","
 lambda-object = definition
 object-entry = (definition  / extension / indexed-definition)
-object = "{" whitespace-optional [object-entry *(whitespace-optional delimiter whitespace-optional object-entry)] whitespace-optional "}" / lambda-object
+object = lambda-object / la s [object-entry *(s delimiter s object-entry)] s ra 
