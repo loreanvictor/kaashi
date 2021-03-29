@@ -1,0 +1,116 @@
+Kaashi {
+  program = s expr s
+  expr =
+         block          |
+         pattern        |
+         lambda         |
+         pipeline       |
+         operation      |
+         attr           |
+         index          |
+         paranthesis    |
+         atomic
+
+  block = "{" s (rule s block_sep s)* (rule s)? "}"
+  block_sep = ";" | ","
+  rule = named_parametric_rule
+       | parametric_rule
+       | key_rule
+       | constant_rule
+       | value_rule
+  named_parametric_rule = name s parametric_rule
+  parametric_rule = (args s)+ s def s expr
+  key_rule = name s def s expr
+  constant_rule = value s def s expr
+  value_rule = expr
+
+  pattern = "{" s (matching s ";" s)* (matching s)? "}"
+  matching = expr s condition
+  condition = "|" s (expr | otherwise)
+
+  lambda = (args s)+ s ":" s expr
+  args = "[" s (arg s "," s)* s arg s "]"
+  arg = destructuring_arg
+      | variable_arg
+      | constant_arg
+  destructuring_arg = destructuring (s "|" s expr)?
+  destructuring =
+    "{" s
+      (destructuring_element s "," s)*
+      (s destructuring_element)? s
+    "}"
+  destructuring_element = destructuring | destructuring_name | name
+  destructuring_name = "..." name
+  variable_arg = name (s "(" s default ss expr s ")" s)? (s "|" s expr)?
+  constant_arg = value
+
+  pipeline = (pipeline | pipeline_operand) s pipe s pipeline_operand
+  pipeline_operand = operation | operand
+
+  operation = operand s (operation | operand)
+  operand = ~pipe (attr | attr_operand)
+  
+  attr = (attr | attr_operand) "." attr_operand
+  attr_operand = index | index_operand
+  
+  index = (index | index_operand | from) "[" s (expr s "," s)* expr s "]"
+  index_operand = atomic | paranthesis
+  
+  paranthesis = "(" s expr s ")"
+
+  atomic = non_op | operator
+  non_op = value | variable | env
+  name = variable | operator
+  
+  env = "$" variable
+  variable = ~reserved (var_letter (var_letter | alnum)*)
+  var_letter = "_" | letter
+
+  value = boolean | number | string
+
+  string = template_string
+         | single_quote_string
+         | dbl_quote_string
+  template_string = "`" (template_valid | template_expr)* "`"
+  template_valid = ~("`" | "{") any
+  template_expr = "{" expr "}"
+  single_quote_string = "'" (~"'" any)* "'"
+  dbl_quote_string = "\"" (~"\"" any)* "\""
+  
+  number = ddigit+ decimal?
+  decimal = "." ddigit+
+  ddigit = digit
+         | "_"
+  
+  boolean = true
+          | false
+  
+  operator = ~pipe
+           ( "..."
+           | is | and | or | not
+           | "==" | "!=" | "=>" | "<=" | ">=" | "=<" | "&&" | "||" | "++" | "--" | "**"
+           | ">>" | "<<" | "^^" | "??" | "!!"
+           | "+" | "-" | "*" | "/" | "=" | "!" | "&" | "%" | "~" | "?" | ">" | "<"
+           | "^"
+           )
+  
+  otherwise = "otherwise"
+  and = "and"
+  or = "or"
+  not = "not"
+  is = "is"
+  true = "true"
+  false = "false"
+  default = "default"
+  reserved = otherwise | and | or | not | is | true | false | default
+  
+  from = "@from"
+  def = "::" | ":"
+  pipe = "->"
+  ss = empty+
+  s = empty*
+  empty = space | comment | multi_comment | endless_comment
+  comment = "//" (~"\n" any)*
+  multi_comment = "/*" (~"*/" any)* "*/"
+  endless_comment = "/*" (~"*/" any)*
+}
