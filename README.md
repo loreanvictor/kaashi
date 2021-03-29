@@ -69,9 +69,9 @@ format for that particular platform.
   //
   overloadedNodes:
     NODES
-    --> map[[node]: { node, DATA --> filter[[row]: row.id = node.id] --> mean }
-    --> filter[[{node, mean}]: mean > $OVERLOAD_THRESHOLD]
-    --> map[[{node}]: node]
+    -> map[[node]: { node, DATA -> filter[[row]: row.id = node.id] -> mean }
+    -> filter[[{node, mean}]: mean > $OVERLOAD_THRESHOLD]
+    -> map[[{node}]: node]
   ;
 }
 ```
@@ -162,9 +162,9 @@ Alternative definition:
   qsort: {                             // --> quick sort
     [{}]: {};                          // --> empty array is sorted
     [{x, ...rest}]: {
-      ...(rest --> filter[[y]: y < x] --> qsort),
+      ...(rest --> filter[[y]: y < x] -> qsort),
       x,
-      ...(rest --> filter[[y]: y > x] --> qsort)
+      ...(rest --> filter[[y]: y > x] -> qsort)
     }
   };
 
@@ -205,23 +205,22 @@ Alternative definition:
   vec[N | N is number]
      [l | l.length = N]: {
     dimension: N;
-    len: l --> map[^ 2] --> sum --> sqrt;
+    len: l --> map[^ 2] -> sum -> sqrt;
     
-    + [o | o.dimension = N]: l map[[x, i]: o[i] + x] --> vec[N];
+    + [o | o.dimension = N]: l map[[x, i]: o[i] + x] -> vec[N];
     + :: this;
 
-    - [o | o.dimension = N]: l map[[x, i]: o[i] - x] --> vec[N];
+    - [o | o.dimension = N]: l map[[x, i]: o[i] - x] -> vec[N];
     - [i | i is number]: -l[i];
     - :: this;
 
-    * [k | k is number]: l map[* k] --> vec[N];
-    * [o | o.dimension = N]: l --> map[[x, i]: o[i] * x] --> sum;
+    * [k | k is number]: l map[* k] -> vec[N];
+    * [o | o.dimension = N]: l -> map[[x, i]: o[i] * x] -> sum;
     / [k | k is number]: this * (1 / k);
-    ^ : l --> map[ / (len this)] --> vec[N];
+    ^ : l -> map[ / (len this)] -> vec[N];
   };
 
   vec[2][{x, y}]:: {x: x, y: y};
-  vec[2][{x: x, y: y}]: vec[2][{x, y}];
 }
 ```
 
@@ -252,14 +251,12 @@ Alternative short-hand for `combinable.ka`:
 ```js
 {
   combinable: {
-    o[F]: --> this --> F;
+    o[F][x]: x -> this -> F;
 
     //
     // so some explanation here:
     // `a b c` is mostly equivalent to `c[b][a]` (or `c.b[a]` if `b` is key of `c` and so on)
-    // `a --> b --> c` is equivalent to `c[b[a]]`
-    // `--> F` (as stand-alone expression) is equivalent to `[x]: x --> F` (`F` expanded by `-->`)
-    // `x -->` (as stand-alone expression) is equivalent to `[F]: x --> F` (`x` expanded by `-->`)
+    // `a -> b -> c` is equivalent to `c[b[a]]`
     //
   }
 }
@@ -319,21 +316,29 @@ We want Kāshi to provide:
 
 ## State of the Project
 
-This project is in _idea_ stage, i.e. the basic idea is documented (the [inspiring examples](#inspiring-examples) above). The syntax needs to be properly documented (I have started on that front, though it takes some time to get cozy with ABNF), the semantics need to be properly documented afterwards, etc, but I feel these examples do outline enough of the idea to be able to move forward.
+This project is in _idea_ stage, i.e. the basic idea is documented (the [inspiring examples](#inspiring-examples) above).
+The syntax is [documented](grammar.ohm), and work on a simple evaluator has started.
 
 So if you have time and interest in helping with this project, all kinds of help/input is much appreciated. The main work that needs to be done is as follows:
 
-- **Syntax Specification**\
-  Currently ABNF is picked as specification format, open to discussion.
+- [x] [~**Syntax Specification**~](grammar.ohm)
 
-- **Semantic Specification**\
-  No format / methodology chosen, open to discussion.
+- [ ] **Semantic Specification**\
+      No format / methodology chosen, open to discussion.
 
-- **Reference Implementation**\
-  A (not necessarily optimal) reference implementation would be greatly beneficial. Ideally this reference implementation should be written in JavaScript / TypeScript or in a manner compilable to WASM so that it allows easy implementation of a web-based playground.
+- [ ] **Reference Implementation**\
+      _Work Started_
+      A (not necessarily optimal) reference implementation would be greatly beneficial. Ideally this reference implementation should be written in JavaScript / TypeScript or in a manner compilable to WASM so that it allows easy implementation of a web-based playground.
 
-- **Usable Implementation**\
-  An implementation targeting a particular use case. What that use-case will be or in which environment / form the implementation will be (a standalone service/runtime, an integratable library targeting one or many specific languages, etc.) is open for discussion. The main aim of this particular endeavour is not necessarily to build a usable product out of the language but rather to further investigate necessary modifications / optimizations to syntax / semantics of Kāshi in a more realistic environment. Of course proper pursuit of that goal does entail somewhat trying to get a useful product out of it as well.
+- [ ] **Usable Implementation**\
+      An implementation targeting a particular use case. What that use-case will be or in which environment / form the implementation will be (a standalone service/runtime, an integratable library targeting one or many specific languages, etc.) is open for discussion. The main aim of this particular endeavour is not necessarily to build a usable product out of the language but rather to further investigate necessary modifications / optimizations to syntax / semantics of Kāshi in a more realistic environment. Of course proper pursuit of that goal does entail somewhat trying to get a useful product out of it as well.
+
+To run the current stuff, clone the repo and do the following:
+
+```bash
+npm ci
+npm test
+```
 
 Since the project is in ideation stage, everything is open for discussion. Do not hesitate to open an issue for any form of question / feedback / etc. Also you can contact me on ghanizadeh.eugene@gmail.com.
-  
+

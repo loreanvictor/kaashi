@@ -1,83 +1,96 @@
 Kaashi {
-  program = s expr s
-  expr =
-         block          |
-         pattern        |
-         lambda         |
-         pipeline       |
-         operation      |
-         attr           |
-         index          |
-         paranthesis    |
-         atomic
+  Expr = Block
+       | Pattern
+       | Lambda
+       | Pipeline
+       | Operation
+       | Attr
+       | Index
+       | Paranthesis
+       | Atomic
 
-  block = "{" s (rule s block_sep s)* (rule s)? "}"
-  block_sep = ";" | ","
-  rule = named_parametric_rule
-       | parametric_rule
-       | key_rule
-       | constant_rule
-       | value_rule
-  named_parametric_rule = name s parametric_rule
-  parametric_rule = (args s)+ s def s expr
-  key_rule = name s def s expr
-  constant_rule = value s def s expr
-  value_rule = expr
 
-  pattern = "{" s (matching s ";" s)* (matching s)? "}"
-  matching = expr s condition
-  condition = "|" s (expr | otherwise)
+  Block = open_block (Rule block_sep)* Rule? close_block
 
-  lambda = (args s)+ s ":" s expr
-  args = "[" s (arg s "," s)* s arg s "]"
-  arg = destructuring_arg
-      | variable_arg
-      | constant_arg
-  destructuring_arg = destructuring (s "|" s expr)?
-  destructuring =
-    "{" s
-      (destructuring_element s "," s)*
-      (s destructuring_element)? s
-    "}"
-  destructuring_element = destructuring | destructuring_name | name
-  destructuring_name = "..." name
-  variable_arg = name (s "(" s default ss expr s ")" s)? (s "|" s expr)?
-  constant_arg = value
+  Rule = Named_parametric_rule
+       | Parametric_rule
+       | Key_rule
+       | Constant_rule
+       | Expr
 
-  pipeline = (pipeline | pipeline_operand) s pipe s pipeline_operand
-  pipeline_operand = operation | operand
+  Named_parametric_rule = name Parametric_rule
+  Parametric_rule = Args+ def Expr
+  Key_rule = name def Expr
+  Constant_rule = Value def Expr
 
-  operation = operand s (operation | operand)
-  operand = ~pipe (attr | attr_operand)
+
+  Pattern = open_block (Matching block_sep)* Matching? close_block
+  Matching = Expr Condition
+  Condition = subject_to (Expr | otherwise)
+
+
+  Lambda = Args+ override Expr
+
+  Args = open_index (Arg arg_sep)* Arg close_index
+  Arg = Destructuring_arg
+      | Variable_arg
+      | Constant_arg
+
+  Destructuring_arg = Destructuring (subject_to Expr)?
+  Destructuring =
+    open_block
+      (Destructuring_element arg_sep)*
+      (Destructuring_element)?
+    close_block
+  Destructuring_element = Destructuring | destructuring_name | name
+  destructuring_name = rest name
+
+  Variable_arg = name Default_value? (subject_to Expr)?
+  Default_value = open_paran default Expr close_paran
+  Constant_arg = Value
+
+
+  Pipeline = (Pipeline | Pipeline_operand) pipe Pipeline_operand
+  Pipeline_operand = Operation | Operand
+
+  Operation = Operand (Operation | Operand)
+  Operand = ~pipe 
+          ( Attr
+          | Index
+          | Atomic
+          | Paranthesis
+          )
   
-  attr = (attr | attr_operand) "." attr_operand
-  attr_operand = index | index_operand
+  Attr = (Attr | Attr_operand) access Attr_operand
+  Attr_operand = Index
+               | Atomic
+               | Paranthesis
   
-  index = (index | index_operand | from) "[" s (expr s "," s)* expr s "]"
-  index_operand = atomic | paranthesis
+  Index = (Index | Index_operand | from) open_index (Expr arg_sep)* Expr close_index
+  Index_operand = Atomic | Paranthesis
   
-  paranthesis = "(" s expr s ")"
+  Paranthesis = open_paran Expr close_paran
 
-  atomic = non_op | operator
-  non_op = value | variable | env
+  Atomic = variable | Value | env | operator
   name = variable | operator
   
   env = "$" variable
   variable = ~reserved (var_letter (var_letter | alnum)*)
   var_letter = "_" | letter
 
-  value = boolean | number | string
+  Value = boolean | number | String
 
-  string = template_string
+  String = Template_string
          | single_quote_string
          | dbl_quote_string
-  template_string = "`" (template_valid | template_expr)* "`"
+  Template_string = "`" (template_valid | Template_expr)* "`"
   template_valid = ~("`" | "{") any
-  template_expr = "{" expr "}"
+  Template_expr = open_block Expr close_block
   single_quote_string = "'" (~"'" any)* "'"
   dbl_quote_string = "\"" (~"\"" any)* "\""
   
-  number = ddigit+ decimal?
+  number = bto | decimal
+  bto = ddigit+ decimal?
   decimal = "." ddigit+
   ddigit = digit
          | "_"
@@ -86,7 +99,7 @@ Kaashi {
           | false
   
   operator = ~pipe
-           ( "..."
+           ( rest
            | is | and | or | not
            | "==" | "!=" | "=>" | "<=" | ">=" | "=<" | "&&" | "||" | "++" | "--" | "**"
            | ">>" | "<<" | "^^" | "??" | "!!"
@@ -104,13 +117,27 @@ Kaashi {
   default = "default"
   reserved = otherwise | and | or | not | is | true | false | default
   
+  block_sep = ";" | ","
+  arg_sep = ","
+  subject_to = "|"
+  open_block = "{"
+  close_block = "}"
+  open_index = "["
+  close_index = "]"
+  open_paran = "("
+  close_paran = ")"
   from = "@from"
-  def = "::" | ":"
+  def = extend | override
+  override = ":"
+  extend = "::"
+  access = "."
+  rest = "..."
   pipe = "->"
   ss = empty+
   s = empty*
-  empty = space | comment | multi_comment | endless_comment
-  comment = "//" (~"\n" any)*
+  empty = space | comment
+  comment = line_comment | multi_comment | endless_comment
+  line_comment = "//" (~"\n" any)*
   multi_comment = "/*" (~"*/" any)* "*/"
   endless_comment = "/*" (~"*/" any)*
 }

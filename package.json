@@ -1,0 +1,27 @@
+{
+  "name": "kaashi",
+  "version": "0.0.1",
+  "description": "![banner](banner.svg)",
+  "main": "index.js",
+  "scripts": {
+    "test": "ts-node tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/loreanvictor/kaashi.git"
+  },
+  "author": "Eugene Ghanizadeh Khoub <ghanizadeh.eugene@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/loreanvictor/kaashi/issues"
+  },
+  "homepage": "https://github.com/loreanvictor/kaashi#readme",
+  "dependencies": {
+    "ohm-js": "^15.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.37",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
+  }
+}
