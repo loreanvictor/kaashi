@@ -292,8 +292,8 @@ We want Kāshi to provide:
   index[x][l]: ...        // computes index of x in l
   ```
   ```js
-  of_able: { of: this --> };
-  in_able: { in: this --> };
+  of_able: { of[x]: this -> x };
+  in_able: { in[x]: this -> x };
   ```
   ```js
   X: ...                  // some value
