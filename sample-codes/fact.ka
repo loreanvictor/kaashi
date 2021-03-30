@@ -1,4 +1,6 @@
 {
-  x: `hellow {a}!`,
+  c: {
+    x: `hellow {a}!`,
+  },
   a: 'world'
 }

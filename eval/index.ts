@@ -3,10 +3,11 @@ import { evalAtomic } from './atomic'
 import { evalBlock } from './block'
 import { EvalContext } from './context'
 import { evalExpr } from './expr'
+import { Tile } from './tile'
 
 
 
-export async function evaluate(grammar: Grammar, code: string) {
+export async function evaluate(grammar: Grammar, code: string): Promise<Tile<unknown>> {
   return new Promise((resolve, reject) => {
     const match = grammar.match(code)
     if (match.succeeded()) {
@@ -16,7 +17,9 @@ export async function evaluate(grammar: Grammar, code: string) {
           return evalExpr(node, context || this)
         },
 
-        evalVar: () => undefined,
+        evalVar: (name: string) => {
+          throw new Error('UNDEFINED:: ' + name)
+        },
       }
   
       semantics.addOperation('walk', {

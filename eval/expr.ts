@@ -2,9 +2,10 @@ import { Node } from 'ohm-js'
 import { evalAtomic } from './atomic'
 import { evalBlock } from './block'
 import { EvalContext } from './context'
+import { Tile } from './tile'
 
 
-export async function evalExpr(node: Node, context: EvalContext) {
+export function evalExpr(node: Node, context: EvalContext): Tile<unknown> {
   if (node.ctorName === 'Block') {
     const [_, rules, __, rule, ___] = node.children
     if (rule.numChildren === 0) {
