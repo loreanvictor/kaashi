@@ -2,7 +2,7 @@ import { Node } from 'ohm-js'
 import { EvalContext } from '../context'
 
 
-export function evalNumber(node: Node) {
+export async function evalNumber(node: Node) {
   const src = node.sourceString.replace(/_/g, '')
   if (src.includes('.')) {
     return parseFloat(src)
@@ -12,21 +12,38 @@ export function evalNumber(node: Node) {
 }
 
 
-export function evalBoolean(node: Node) {
+export async function evalBoolean(node: Node) {
   return node.sourceString === 'true'
 }
 
 
-export function evalString(node: Node, context: EvalContext) {
+export async function evalString(node: Node, context: EvalContext) {
   if (node.ctorName === 'Template_string') {
-    throw new Error('NOT IMPLEMENTED')
+    if (node.child(0).ctorName === 'bland_template') {
+      return node.child(0).child(1).sourceString
+    } else {
+      const rules = node.child(0).children
+      const bits = [
+        rules[0].child(1).sourceString,
+        context.evalExpr(rules[1].child(0))
+      ]
+
+      rules[2].children.forEach((rule, index) => {
+        bits.push(rule.child(1).sourceString)
+        bits.push(context.evalExpr(rules[3].child(index).child(0)))
+      })
+
+      bits.push(rules[4].child(1).sourceString)
+
+      return Promise.all(bits).then(pieces => pieces.join(''))
+    }
   } else {
-    return node.sourceString
+    return node.child(1).sourceString
   }
 }
 
 
-export function evalValue(node: Node, context: EvalContext) {
+export async function evalValue(node: Node, context: EvalContext) {
   if (node.ctorName === 'number') {
     return evalNumber(node)
   } else if (node.ctorName === 'boolean') {

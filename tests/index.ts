@@ -7,4 +7,7 @@ import { evaluate } from '../eval'
 const kaashiGrammar = grammar(readFileSync(join(__dirname, '..', 'grammar.ohm')).toString())
 const sampleCode = readFileSync(process.argv[2]).toString()
 
-evaluate(kaashiGrammar, sampleCode).then(console.log)
+evaluate(kaashiGrammar, sampleCode).then(async (res: any) => {
+  // console.log(res)
+  console.log(await res.x)
+})

@@ -4,8 +4,7 @@ Kaashi {
        | Lambda
        | Pipeline
        | Operation
-       | Attr
-       | Index
+       | Access
        | Paranthesis
        | Atomic
 
@@ -54,20 +53,17 @@ Kaashi {
   Pipeline_operand = Operation | Operand
 
   Operation = Operand (Operation | Operand)
-  Operand = ~pipe 
-          ( Attr
-          | Index
+  Operand = ~pipe
+          ( Access
           | Atomic
           | Paranthesis
           )
   
-  Attr = (Attr | Attr_operand) access Attr_operand
-  Attr_operand = Index
-               | Atomic
-               | Paranthesis
-  
-  Index = (Index | Index_operand | from) open_index (Expr arg_sep)* Expr close_index
-  Index_operand = Atomic | Paranthesis
+  Access = Index | Attr
+  Attr = (Access | Index_operand) access name
+  Index = (Access | Index_operand | from) open_index (Expr arg_sep)* Expr close_index
+  Index_operand = Atomic
+                | Paranthesis
   
   Paranthesis = open_paran Expr close_paran
 
@@ -83,11 +79,21 @@ Kaashi {
   String = Template_string
          | single_quote_string
          | dbl_quote_string
-  Template_string = "`" (template_valid | Template_expr)* "`"
-  template_valid = ~("`" | "{") any
-  Template_expr = open_block Expr close_block
-  single_quote_string = "'" (~"'" any)* "'"
-  dbl_quote_string = "\"" (~"\"" any)* "\""
+
+  Template_string = Template | bland_template
+  Template = template_start Expr (template_middle Expr)* template_end
+  
+  template_middle = close_block (~(backtick | open_block) any)* open_block
+  template_end = close_block (~(backtick | open_block) any)* backtick
+  template_start = backtick (~(backtick | open_block) any)* open_block
+  bland_template = backtick (~backtick any)* backtick
+  
+  single_quote_string = single_quote (~single_quote any)* single_quote
+  dbl_quote_string = dbl_quote (~dbl_quote any)* dbl_quote
+  
+  single_quote = "'"
+  dbl_quote = "\""
+  backtick = "`"
   
   number = bto | decimal
   bto = ddigit+ decimal?

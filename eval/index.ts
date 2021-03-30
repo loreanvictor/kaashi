@@ -12,7 +12,11 @@ export async function evaluate(grammar: Grammar, code: string) {
     if (match.succeeded()) {
       const semantics = grammar.createSemantics()
       const context: EvalContext = {
-        evalExpr: node => evalExpr(node, context)
+        evalExpr(node, context) {
+          return evalExpr(node, context || this)
+        },
+
+        evalVar: () => undefined,
       }
   
       semantics.addOperation('walk', {

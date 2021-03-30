@@ -14,7 +14,11 @@ export async function evalExpr(node: Node, context: EvalContext) {
     }
   } else if (node.ctorName === 'Atomic') {
     return evalAtomic(node.child(0), context)
+  } else if (node.ctorName === 'Paranthesis') {
+    return evalExpr(node.child(1).child(0), context)
   }
 
-  throw new Error('NOT IMPLEMENTED!')
+  // TODO: resolve other nodes and stuff
+
+  throw new Error('NOT IMPLEMENTED:: ' + node.ctorName)
 }
