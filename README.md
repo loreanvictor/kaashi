@@ -32,7 +32,7 @@ format for that particular platform.
   //
   logFormat: {
     warning: [msg, time]: 'WARNING: ' + msg;
-    error: [msg, time]: `ERROR (${time format['yy/MM/dd; hh:MM']}): ${msg}`;
+    error: [msg, time]: `ERROR ({time format['yy/MM/dd; hh:MM']}): {msg}`;
   };
 
   //
