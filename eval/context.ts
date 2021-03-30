@@ -6,7 +6,7 @@ export interface EvalContext {
   evalVar(name: string): Tile<unknown>
 }
 
-export function extend(context: EvalContext, child: Tile<unknown>, lock?: Promise<unknown>): EvalContext {
+export function extend(context: EvalContext, child: Tile<unknown>): EvalContext {
   return {
     evalExpr(node, ctx?) {
       return context.evalExpr(node, ctx || this)
@@ -15,12 +15,9 @@ export function extend(context: EvalContext, child: Tile<unknown>, lock?: Promis
     evalVar(name: string) {
       return unwrap(
         new Promise(async resolve => {
-          if (lock) await lock
-
-          const key = tile(name)
-          child.has(key).then(has => {
+          child.has(name).then(has => {
             if (has) {
-              resolve(child.get(key))
+              resolve(child.get(tile(name)))
             } else {
               resolve(context.evalVar(name))
             }

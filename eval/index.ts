@@ -5,7 +5,8 @@ import { EvalContext } from './context'
 import { evalExpr } from './expr'
 import { Tile } from './tile'
 
-
+// TODO: Tons of cleaning up. Basically re-write this from scratch in a cleanly structured manner,
+//       and lets see how the semantics operations thingy can be utilized properly.
 
 export async function evaluate(grammar: Grammar, code: string): Promise<Tile<unknown>> {
   return new Promise((resolve, reject) => {

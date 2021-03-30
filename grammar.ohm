@@ -139,9 +139,7 @@ Kaashi {
   access = "."
   rest = "..."
   pipe = "->"
-  ss = empty+
-  s = empty*
-  empty = space | comment
+  space := " " | "\t" | "\r" | "\n" | comment
   comment = line_comment | multi_comment | endless_comment
   line_comment = "//" (~"\n" any)*
   multi_comment = "/*" (~"*/" any)* "*/"

@@ -1,6 +1,6 @@
 import { Node } from 'ohm-js'
 import { EvalContext } from '../context'
-import { tile } from '../tile'
+import { tile, unwrap } from '../tile'
 
 
 export function evalNumber(node: Node) {
@@ -36,7 +36,7 @@ export function evalString(node: Node, context: EvalContext) {
 
       bits.push(rules[4].child(1).sourceString)
 
-      return tile(Promise.all(bits).then(pieces => pieces.join('')))
+      return unwrap(Promise.all(bits).then(pieces => tile(pieces.join(''))))
     }
   } else {
     return tile(node.child(1).sourceString)
