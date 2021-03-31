@@ -95,7 +95,7 @@ Kaashi {
   dbl_quote = "\""
   backtick = "`"
   
-  number = bto | decimal
+  number = "-"? (bto | decimal)
   bto = ddigit+ decimal?
   decimal = "." ddigit+
   ddigit = digit

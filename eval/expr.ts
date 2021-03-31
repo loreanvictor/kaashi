@@ -28,7 +28,7 @@ export function evalExpr(node: Node, context: EvalContext): Tile<unknown> {
     const right = evalExpr(rightnode, context)
     const key = node.child(0).child(0).child(0).sourceString
 
-    if (lefttype === 'operator') {
+    if (lefttype === 'operator' || lefttype === 'variable') {
       return unwrap(new Promise(resolve => {
         right.has(key)
         .then(has => {
