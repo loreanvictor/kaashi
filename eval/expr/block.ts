@@ -1,6 +1,6 @@
 import { Node } from 'ohm-js'
-import { EvalContext, extend } from './context'
-import { Tile } from './tile'
+import { EvalContext, extend } from '../context'
+import { Tile } from '../tile'
 
 
 export function evalBlock(rules: Node[], context: EvalContext) {

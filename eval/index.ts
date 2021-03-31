@@ -1,8 +1,8 @@
 import { Grammar } from 'ohm-js'
 import { evalAtomic } from './atomic'
-import { evalBlock } from './block'
+import { evalBlock } from './expr/block'
 import { EvalContext } from './context'
-import { evalExpr } from './expr'
+import { evalExpr } from './expr/expr'
 import { Tile } from './tile'
 
 // TODO: re-organize these in a cleaner manner
