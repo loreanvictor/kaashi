@@ -7,6 +7,10 @@ export function Expr(_) {
   return this.unpack().eval()
 }
 
+export function Paranthesis(_, __, ___) {
+  return this.unpack().eval()
+}
+
 export function Operation(_, __) {
   const { left, right, keycheck } = this.unpack()
   return context => evalOperation(left, right, keycheck, context)
