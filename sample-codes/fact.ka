@@ -1,5 +1,5 @@
 {
-  y: x.a.b + ` world: {-1 x}`,
+  y: x.a['b'] + ` world {-1 x}`,
   x: {
     2, 3, 4,
     a: { b: 'hellow' }

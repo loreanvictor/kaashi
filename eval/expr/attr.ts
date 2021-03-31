@@ -4,13 +4,7 @@ import { tile, Tile, unwrap } from '../tile'
 
 
 export function evalAttr(operand: Node, name: Node, context: EvalContext): Tile<unknown> {
-  let operand$
-
-  if (operand.ctorName === 'Index_operand') {
-    operand$ = context.evalExpr(operand.child(0))
-  } else {
-    operand$ = context.evalExpr(operand)
-  }
+  const operand$ = context.evalExpr(operand)
 
   const key = name.sourceString
 

@@ -3,13 +3,11 @@ import { EvalContext } from '../context'
 import { Tile, tile, unwrap } from '../tile'
 
 
-export function evalOperation(left: Node, right: Node, context: EvalContext) {
-
-  const lefttype = left.child(0).ctorName
-  const key = left.child(0).sourceString
+export function evalOperation(left: Node, right: Node, keycheck: boolean, context: EvalContext) {
   const right$ = context.evalExpr(right)
+  const key = left.sourceString
 
-  if (left.ctorName === 'Atomic' && lefttype === 'operator' || lefttype === 'variable') {
+  if (keycheck) {
     return unwrap(new Promise<Tile>(resolve => {
       right$.has(key)
       .then(has => {
