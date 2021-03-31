@@ -1,18 +1,21 @@
-import { Node } from 'ohm-js'
 import { Tile, tile, unwrap } from './tile'
 
+
 export interface EvalContext {
-  evalExpr(node: Node, context?: EvalContext): Tile<unknown>
   evalVar(name: string): Tile<unknown>
+}
+
+export function empty(): EvalContext {
+  return {
+    evalVar(name) {
+      throw new Error('Undefined:: ' + name)
+    }
+  }
 }
 
 export function extend(context: EvalContext, child: Tile<unknown>): EvalContext {
   return {
-    evalExpr(node, ctx?) {
-      return context.evalExpr(node, ctx || this)
-    },
-
-    evalVar(name: string) {
+    evalVar(name) {
       return unwrap(
         new Promise(async resolve => {
           child.has(name).then(has => {

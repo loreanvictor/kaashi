@@ -4,7 +4,7 @@ import { tile, Tile, unwrap } from '../tile'
 
 
 export function evalAttr(operand: Node, name: Node, context: EvalContext): Tile<unknown> {
-  const operand$ = context.evalExpr(operand)
+  const operand$ = operand.eval()(context)
 
   const key = name.sourceString
 
