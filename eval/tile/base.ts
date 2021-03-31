@@ -38,12 +38,14 @@ export class Tile<T=unknown> {
     if (
       keys.length === 1 &&
       (typeof keys[0] === 'boolean' || typeof keys[0] === 'number' || typeof keys[0] === 'string')
-      && (keys[0] as any) in this.statics
     ) {
-      if (keys[0] === 'length' && '#length' in this.statics) {
+      const key = keys[0]
+      if (key === 'length' && '#length' in this.statics) {
         return (this.statics['#length'] as any)()
-      } else {
-        return this.statics[keys[0] as any]()
+      } else if ((key as any) in this.statics) {
+        return this.statics[key as any]()
+      } else if (typeof key === 'number' && key < 0 && (this.statics.length + key) in this.statics) {
+        return this.statics[this.statics.length + key]()
       }
     }
 
