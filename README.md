@@ -191,8 +191,9 @@ More abstract examples to demonstrate syntactic capabilities:
     dimension: N,
     len: l -> map[^ 2] -> sum -> sqrt,
 
-    +: [o | o.dimension = N]: l map[[x, i]: o[i] + x] -> vec[N],
-    -: [o | o.dimension = N]: l map[[x, i]: o[i] - x] -> vec[N],
+    [o | o.dimension = N]: l map[[x, i]: o[i] + x] -> vec[N],
+    +: l map[[x]: x]  -> vec[N],
+    -: l map[[x]: -x] -> vec[N],
 
     *: {
       [k | k is number]: l map[* k] -> vec[N],
