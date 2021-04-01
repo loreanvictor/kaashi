@@ -43,16 +43,9 @@ format for that particular platform.
 - Data fetching / processing:
 ```js
 @import https://kaashi.dev/csv as CSV
+@from ./array-operations.ka import map, filter, sum
 
 {
-  //
-  // import useful functions
-  //
-  ops: @from['./array-operations.ka'];
-  map: ops.map;
-  filter: ops.filter;
-  sum: ops.sum;
-
   mean[l]: sum[l] / l.length;
 
   //
