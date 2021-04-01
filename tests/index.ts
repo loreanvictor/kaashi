@@ -20,7 +20,9 @@ readline.prompt()
 readline.on('line', async line => {
   readline.pause()
   try {
-    console.log(await evaluate(line, context).value())
+    const tile = evaluate(line, context)
+    const val = await tile.value()
+    console.log(val)
   } catch (err) {
     console.log(err.message)
   } finally {

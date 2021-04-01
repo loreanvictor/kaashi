@@ -1,18 +1,23 @@
 import { Node } from 'ohm-js'
 import { EvalContext } from '../context'
+import { SemanticError } from '../errors/semantic.error'
+import { UndefinedVariable } from '../errors/undefined-variable.error'
 import { tile, Tile, unwrap } from '../tile'
 
 
-export function evalAttr(operand: Node, name: Node, context: EvalContext): Tile<unknown> {
+export function evalAttr(operand: Node, name: Node, context: EvalContext, ref: Node): Tile<unknown> {
   const operand$ = operand.eval(context)
 
   const key = name.sourceString
 
-  return unwrap(new Promise((resolve, reject) => {
-    operand$.has(key)
-      .then(has => {
-        if (has) resolve(operand$.get(tile(key)))
-        else reject('NOT DEFINED:: ' + key + ' ' + name.source.getLineAndColumnMessage())
-      })
-  }))
+  return unwrap((
+    async () => {
+      const has = await operand$.has(key)
+      if (has) {
+        return await operand$.get(tile(key))
+      } else {
+        throw new UndefinedVariable(key, ref)
+      }
+    }
+  )())
 }

@@ -1,3 +1,6 @@
+import { NoMatchingRule } from './errors/no-matching-rule.error'
+import { NotPrimitive } from './errors/not-primitive.error'
+
 export interface Rule<O=any> {
   matches(...indices: Tile<unknown>[]): Promise<boolean>
   value(...indices: Tile<unknown>[]): Promise<Tile<O>>
@@ -42,7 +45,7 @@ export class Tile<T=unknown> {
       const key = keys[0]
       if (key === 'length' && '#length' in this.statics) {
         return (this.statics['#length'] as any)()
-      } else if ((key as any) in this.statics) {
+      } else if (Object.keys(this.statics).includes(key as any)) {
         return this.statics[key as any]()
       } else if (typeof key === 'number' && key < 0 && (this.statics.length + key) in this.statics) {
         return this.statics[this.statics.length + key]()
@@ -55,11 +58,11 @@ export class Tile<T=unknown> {
       }
     }
 
-    throw new Error('NOT DEFINED:: ' + keys)
+    throw new NoMatchingRule(keys.map(key => `${key}`))
   }
 
   async value(): Promise<T> {
-    throw new Error('NOT PRIMITIVE')
+    throw new NotPrimitive(this)
   }
 }
 

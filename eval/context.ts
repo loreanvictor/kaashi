@@ -1,32 +1,42 @@
+import { Node } from 'ohm-js'
+import { SemanticError } from './errors/semantic.error'
+import { UndefinedVariable } from './errors/undefined-variable.error'
 import { Tile, tile, unwrap } from './tile'
 
 
 export interface EvalContext {
-  evalVar(name: string): Tile<unknown>
+  evalVar(name: string, ref?: Node): Tile<unknown>
 }
 
 export function empty(): EvalContext {
   return {
-    evalVar(name) {
-      throw new Error('Undefined:: ' + name)
+    evalVar(name, ref?) {
+      throw new UndefinedVariable(name, ref)
     }
   }
 }
 
 export function extend(context: EvalContext, child: Tile<unknown>): EvalContext {
   return {
-    evalVar(name) {
-      return unwrap(
-        new Promise(async resolve => {
-          child.has(name).then(has => {
+    evalVar(name, ref?) {
+      return unwrap((
+        async () => {
+          try {
+            const has = await child.has(name)
             if (has) {
-              resolve(child.get(tile(name)))
+              return await child.get(tile(name))
             } else {
-              resolve(context.evalVar(name))
+              return await context.evalVar(name, ref)
             }
-          })
-        })
-      )
+          } catch (err) {
+            if (!err.ref) {
+              throw new SemanticError(err, ref)
+            } else {
+              throw err
+            }
+          }
+        }
+      )())
     }
   }
 }

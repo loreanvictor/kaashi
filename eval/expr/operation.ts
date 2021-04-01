@@ -1,26 +1,27 @@
 import { Node } from 'ohm-js'
 import { EvalContext } from '../context'
-import { Tile, tile, unwrap } from '../tile'
+import { SemanticError } from '../errors/semantic.error'
+import { tile, unwrap } from '../tile'
 
 
-export function evalOperation(left: Node, right: Node, keycheck: boolean, context: EvalContext) {
+export function evalOperation(left: Node, right: Node, keycheck: boolean, context: EvalContext, ref: Node) {
   const right$ = right.eval(context)
   const key = left.sourceString
 
-  if (keycheck) {
-    return unwrap(new Promise<Tile>(resolve => {
-      right$.has(key)
-      .then(has => {
-        if (has) {
-          right$.get(tile(key)).then(resolve)
-        } else {
-          const left$ = left.eval(context)
-          right$.get(left$).then(resolve)
+  return unwrap((
+    async () => {
+      try {
+        if (keycheck) {
+          const has = right$.has(key)
+          if (has) {
+            return await right$.get(tile(key))
+          }
         }
-      })
-    }))
-  } else {
-    const left$ = left.eval(context)
-    return unwrap(right$.get(left$))
-  }
+        const left$ = left.eval(context)
+        return await right$.get(left$)
+      } catch (err) {
+        throw new SemanticError(err, ref)
+      }
+    }
+  )())
 }

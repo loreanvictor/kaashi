@@ -53,6 +53,8 @@ export class IndexRule extends NumericRule {
   normalize(index: number) {
     if (index < 0) {
       return this.src.length + index
+    } else {
+      return index
     }
   }
 }

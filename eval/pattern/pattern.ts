@@ -1,6 +1,7 @@
 import { Node } from 'ohm-js'
 import { EvalContext } from '../context'
 import { unwrap } from '../tile'
+import { NoMatchingPattern } from './errors/no-match.error'
 
 
 export function evalPattern(matchings: Node[], context: EvalContext) {
@@ -14,7 +15,7 @@ export function evalPattern(matchings: Node[], context: EvalContext) {
         }
       }
 
-      throw new Error('Nothing Matched!: ' + matchings[matchings.length - 1].source.getLineAndColumnMessage())
+      throw new NoMatchingPattern()
     }
   )())
 }
