@@ -4,7 +4,7 @@ import { Tile, tile, unwrap } from '../tile'
 
 
 export function evalOperation(left: Node, right: Node, keycheck: boolean, context: EvalContext) {
-  const right$ = right.eval()(context)
+  const right$ = right.eval(context)
   const key = left.sourceString
 
   if (keycheck) {
@@ -14,13 +14,13 @@ export function evalOperation(left: Node, right: Node, keycheck: boolean, contex
         if (has) {
           right$.get(tile(key)).then(resolve)
         } else {
-          const left$ = left.eval()(context)
+          const left$ = left.eval(context)
           right$.get(left$).then(resolve)
         }
       })
     }))
   } else {
-    const left$ = left.eval()(context)
+    const left$ = left.eval(context)
     return unwrap(right$.get(left$))
   }
 }

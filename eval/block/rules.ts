@@ -4,15 +4,14 @@ import { Tile } from '../tile'
 
 
 export function Key_rule(name: Node, _, expr: Node) {
-  return (tile: Tile, context: EvalContext) => {
-    const value = () => expr.eval()(context)
-    tile.set(name.sourceString, value)
-  }
+  const { tile, context } = this.args
+
+  const value = () => expr.eval(context)
+  tile.set(name.sourceString, value)
 }
 
 
 export function Expr(_) {
-  return (tile: Tile, context: EvalContext) => {
-    tile.push(() => this.eval()(context))
-  }
+  const { tile, context } = this.args
+  tile.push(() => this.eval(context))
 }

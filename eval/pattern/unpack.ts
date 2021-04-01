@@ -12,7 +12,7 @@ export function Pattern(_, matchings: Node, __, matching: Node, ___) {
 export function Matching(expr: Node, condition: Node) {
   return {
     expr,
-    condition: condition.unpack()
+    condition: condition.unpacked
   }
 }
 

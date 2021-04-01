@@ -3,10 +3,10 @@ import { evalPattern } from './pattern'
 
 
 export function Pattern(_, __, ___, ____, _____) {
-  const { matchings } = this.unpack()
-  return context => evalPattern(matchings, context)
+  const { matchings } = this.unpacked
+  return evalPattern(matchings, this.args.context)
 }
 
 export function otherwise(_) {
-  return () => tile(true)
+  return tile(true)
 }

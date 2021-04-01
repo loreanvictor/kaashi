@@ -4,50 +4,46 @@ import { evalVar } from './var'
 
 
 export function number(_, __) {
-  return () => evalNumber(this)
+  return evalNumber(this)
 }
 
 export function boolean(_) {
-  return () => evalBoolean(this)
+  return evalBoolean(this)
 }
 
 export function single_quote_string(_, __, ___) {
-  const core = this.unpack()
-  return () => evalString(core)
+  return evalString(this.unpacked)
 }
 
 export function dbl_quote_string(_, __, ___) {
-  const core = this.unpack()
-  return () => evalString(core)
+  return evalString(this.unpacked)
 }
 
 export function bland_template(_, __, ___) {
-  const core = this.unpack()
-  return () => evalString(core)
+  return evalString(this.unpacked)
 }
 
 export function Template(_, __, ___, ____, _____) {
-  const { strings, exprs } = this.unpack()
-  return context => evalTemplate(strings, exprs, context)
+  const { strings, exprs } = this.unpacked
+  return evalTemplate(strings, exprs, this.args.context)
 }
 
 export function Value(_) {
-  return this.unpack().eval()
+  return this.unpacked.eval(this.args.context)
 }
 
 export function env(_, __) {
-  const core = this.unpack()
-  return () => evalEnv(core)
+  return evalEnv(this.unpacked)
 }
 
 export function variable(_, __) {
-  return context => evalVar(this, context)
+  return evalVar(this, this.args.context)
 }
 
 export function operator(_) {
-  return context => evalVar(this, context)
+  return evalVar(this, this.args.context)
 }
 
 export function Atomic(_) {
-  return this.unpack().eval()
+  return this.unpacked.eval(this.args.context)
 }

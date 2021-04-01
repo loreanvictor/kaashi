@@ -23,7 +23,7 @@ export function evalTemplate(strings: Node[], exprs: Node[], context: EvalContex
   strings.forEach((str, index) => {
     bits.push(str.sourceString)
     if (index < strings.length - 1) {
-      bits.push(exprs[index].eval()(context).value())
+      bits.push(exprs[index].eval(context).value())
     }
   })
 

@@ -4,7 +4,7 @@ import { tile, Tile, unwrap } from '../tile'
 
 
 export function evalAttr(operand: Node, name: Node, context: EvalContext): Tile<unknown> {
-  const operand$ = operand.eval()(context)
+  const operand$ = operand.eval(context)
 
   const key = name.sourceString
 
@@ -12,7 +12,7 @@ export function evalAttr(operand: Node, name: Node, context: EvalContext): Tile<
     operand$.has(key)
       .then(has => {
         if (has) resolve(operand$.get(tile(key)))
-        else reject('NOT DEFINED:: ' + key)
+        else reject('NOT DEFINED:: ' + key + ' ' + name.source.getLineAndColumnMessage())
       })
   }))
 }

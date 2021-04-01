@@ -7,14 +7,14 @@ export function evalPattern(matchings: Node[], context: EvalContext) {
   return unwrap((
     async () => {
       for (let matching of matchings) {
-        const { expr, condition } = matching.unpack()
-        const value = await condition.eval()(context).value()
+        const { expr, condition } = matching.unpacked
+        const value = await condition.eval(context).value()
         if (value === true) {
-          return expr.eval()(context)
+          return expr.eval(context)
         }
       }
 
-      throw new Error('Nothing Matched!')
+      throw new Error('Nothing Matched!: ' + matchings[matchings.length - 1].source.getLineAndColumnMessage())
     }
   )())
 }

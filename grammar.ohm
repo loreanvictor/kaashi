@@ -1,4 +1,22 @@
 Kaashi {
+  Program = Import* Expr
+
+
+  Import = Extract_import | Alias_import
+  Extract_import = from_directive address import name (arg_sep name)*
+  Alias_import = import_directive address as name
+
+  from_directive = "@from"
+  import_directive = "@import"
+  as = "as"
+  import = "import"
+  address = (alnum
+       | "+" | "-" | "=" | "&" | "?" | "." | ":" | "," | ";"
+       | "[" | "]" | "/" | "\\" | "#" | "@" | "!" | "~" | "%"
+       | "'" | "\""
+       )+
+
+
   Expr = Block
        | Pattern
        | Lambda
@@ -53,22 +71,19 @@ Kaashi {
   Pipeline = (Pipeline | Pipeline_operand) pipe Pipeline_operand
   Pipeline_operand = Operation | Operand
 
-
   Operation = Operand (Operation | Operand)
   Operand = ~pipe
           ( Access
           | Atomic
           | Paranthesis
           )
-
-
+  
   Access = Index | Attr
   Attr = (Access | Index_operand) access name
-  Index = (Access | Index_operand | from) open_index (Expr arg_sep)* Expr close_index
+  Index = (Access | Index_operand) open_index (Expr arg_sep)* Expr close_index
   Index_operand = Atomic
                 | Paranthesis
-
-
+  
   Paranthesis = open_paran Expr close_paran
 
   Atomic = variable | Value | env | operator
@@ -136,7 +151,6 @@ Kaashi {
   close_index = "]"
   open_paran = "("
   close_paran = ")"
-  from = "@from"
   define = ":"
   extend = "::"
   access = "."

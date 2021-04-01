@@ -1,5 +1,7 @@
-import { Grammar } from 'ohm-js'
-import { empty } from './context'
+import { join } from 'path'
+import { readFileSync } from 'fs'
+import { grammar } from 'ohm-js'
+import { empty, EvalContext } from './context'
 import { Tile } from './tile'
 
 import * as Unpack from './unpack'
@@ -7,16 +9,18 @@ import * as Eval from './eval'
 import * as BlockRules from './block/rules'
 
 
-export function evaluate(grammar: Grammar, code: string): Tile<unknown> {
-  const match = grammar.match(code)
-  const semantics = grammar.createSemantics()
-  const context = empty()
-  semantics.addOperation('unpack', Unpack)
-  semantics.addOperation('eval', Eval)
-  semantics.addOperation('blockRule', BlockRules)
+const Grammar = grammar(readFileSync(join(__dirname, '..', 'grammar.ohm')).toString())
+const Semantics = Grammar.createSemantics()
+Semantics.addAttribute('unpacked', Unpack)
+Semantics.addOperation('eval(context)', Eval)
+Semantics.addOperation('blockRule(tile, context)', BlockRules)
+
+
+export function evaluate(code: string, context: EvalContext = empty()): Tile<unknown> {
+  const match = Grammar.match(code)
 
   if (match.succeeded()) {
-    return semantics(match).eval()(context)
+    return Semantics(match).eval(context)
   } else {
     throw new Error(match.message)
   }

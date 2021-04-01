@@ -8,7 +8,7 @@ export function evalBlock(rules: Node[], context: EvalContext) {
   const ctx = extend(context, res)
 
   for (let rule of rules) {
-    rule.blockRule()(res, ctx)
+    rule.blockRule(res, ctx)
   }
 
   return res
