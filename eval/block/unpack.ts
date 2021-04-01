@@ -15,4 +15,4 @@ export function Block(_, rules: Node, __, rule: Node, ___) {
 
 
 export function Rule(node: Node) { return node }
-export function def(node: Node) { return node }
+

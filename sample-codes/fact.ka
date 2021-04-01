@@ -1,10 +1,11 @@
 {
   y: {
-    b x.a    | (-2 x) > 3,
-    42       | otherwise
+    b x.a -> postfix    | x[-2] > 3,
+    42                  | otherwise
   },
   x: {
-    2, 3, 1, true and false,
+    2, 3, 4, true and false,
     a: { b: 'hellow' }
   },
+  postfix: + ' world!'
 }

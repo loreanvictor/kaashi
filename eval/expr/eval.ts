@@ -1,6 +1,7 @@
 import { evalAttr } from './attr'
 import { evalIndex } from './indexing'
 import { evalOperation } from './operation'
+import { evalPipeline } from './pipeline'
 
 
 export function Expr(_) {
@@ -9,6 +10,11 @@ export function Expr(_) {
 
 export function Paranthesis(_, __, ___) {
   return this.unpack().eval()
+}
+
+export function Pipeline(_, __, ___) {
+  const { left, right } = this.unpack()
+  return context => evalPipeline(left, right, context)
 }
 
 export function Operation(_, __) {
@@ -28,6 +34,10 @@ export function Attr(_, __, ___) {
 export function Index(_, __, ___, ____, _____, ______) {
   const {operand, indices} = this.unpack()
   return context => evalIndex(operand, indices, context)
+}
+
+export function Pipeline_operand(_) {
+  return this.unpack().eval()
 }
 
 export function Operand(_) {

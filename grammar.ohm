@@ -11,16 +11,21 @@ Kaashi {
 
   Block = open_block (Rule block_sep)* Rule? close_block
 
-  Rule = Named_parametric_rule
-       | Parametric_rule
+  Rule = Parametric_rule
+       | Parametric_extension_rule
        | Key_rule
+       | Key_extension_rule
        | Constant_rule
+       | Constant_extension_rule
        | Expr
 
-  Named_parametric_rule = name Parametric_rule
-  Parametric_rule = Args+ def Expr
-  Key_rule = name def Expr
-  Constant_rule = Value def Expr
+  Parametric_extension_rule = Args+ extend Expr
+  Key_extension_rule = name extend Expr
+  Constant_extension_rule = Value extend Expr
+
+  Parametric_rule = name? Args+ define Expr
+  Key_rule = name define Expr
+  Constant_rule = Value define Expr
 
 
   Pattern = open_block (Matching block_sep)* Matching? close_block
@@ -28,7 +33,7 @@ Kaashi {
   Condition = subject_to (Expr | otherwise)
 
 
-  Lambda = Args+ override Expr
+  Lambda = Args+ define Expr
 
   Args = open_index (Arg arg_sep)* Arg close_index
   Arg = Destructuring_arg
@@ -36,11 +41,7 @@ Kaashi {
       | Constant_arg
 
   Destructuring_arg = Destructuring (subject_to Expr)?
-  Destructuring =
-    open_block
-      (Destructuring_element arg_sep)*
-      (Destructuring_element)?
-    close_block
+  Destructuring = open_block (Destructuring_element arg_sep)* (Destructuring_element)? close_block
   Destructuring_element = Destructuring | destructuring_name | name
   destructuring_name = rest name
 
@@ -52,19 +53,22 @@ Kaashi {
   Pipeline = (Pipeline | Pipeline_operand) pipe Pipeline_operand
   Pipeline_operand = Operation | Operand
 
+
   Operation = Operand (Operation | Operand)
   Operand = ~pipe
           ( Access
           | Atomic
           | Paranthesis
           )
-  
+
+
   Access = Index | Attr
   Attr = (Access | Index_operand) access name
   Index = (Access | Index_operand | from) open_index (Expr arg_sep)* Expr close_index
   Index_operand = Atomic
                 | Paranthesis
-  
+
+
   Paranthesis = open_paran Expr close_paran
 
   Atomic = variable | Value | env | operator
@@ -133,8 +137,7 @@ Kaashi {
   open_paran = "("
   close_paran = ")"
   from = "@from"
-  def = extend | override
-  override = ":"
+  define = ":"
   extend = "::"
   access = "."
   rest = "..."

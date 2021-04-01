@@ -3,15 +3,10 @@ import { EvalContext } from '../context'
 import { Tile } from '../tile'
 
 
-export function Key_rule(name: Node, def: Node, expr: Node) {
+export function Key_rule(name: Node, _, expr: Node) {
   return (tile: Tile, context: EvalContext) => {
     const value = () => expr.eval()(context)
-
-    if (def.unpack().ctorName === 'override') {
-      tile.set(name.sourceString, value)
-    } else {
-      throw new Error('NOT IMPLEMENTED YET:: extensions')
-    }
+    tile.set(name.sourceString, value)
   }
 }
 

@@ -1,5 +1,10 @@
 import { Node } from 'ohm-js'
 
+
+export function Pipeline(left: Node, _, right: Node) {
+  return { left, right }
+}
+
 export function Operation(left: Node, right: Node) {
   const type = left.child(0).ctorName
   const deepType = left.child(0).child(0).ctorName
@@ -24,4 +29,5 @@ export function Paranthesis(_, node: Node, __) { return node }
 export function Expr(node: Node) { return node }
 export function Access(node: Node) { return node }
 export function Operand(node: Node) { return node }
+export function Pipeline_operand(node: Node) { return node }
 export function Index_operand(node: Node) { return node }
