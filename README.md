@@ -195,20 +195,19 @@ More abstract examples to demonstrate syntactic capabilities:
   vec:
     [N | N is number]:
     [l | l.length = N]: {
-    dimension: N;
-    len: l -> map[^ 2] -> sum -> sqrt;
+    dimension: N,
+    len: l -> map[^ 2] -> sum -> sqrt,
 
-    + [o | o.dimension = N]: l map[[x, i]: o[i] + x] -> vec[N];
-    + :: this;
+    +: [o | o.dimension = N]: l map[[x, i]: o[i] + x] -> vec[N],
+    -: [o | o.dimension = N]: l map[[x, i]: o[i] - x] -> vec[N],
 
-    - [o | o.dimension = N]: l map[[x, i]: o[i] - x] -> vec[N];
-    - [i | i is number]: -l[i];
-    - :: this;
+    *: {
+      [k | k is number]: l map[* k] -> vec[N],
+      [o | o.dimension = N]: l -> map[[x, i]: o[i] * x] -> sum,
+    },
 
-    * [k | k is number]: l map[* k] -> vec[N];
-    * [o | o.dimension = N]: l -> map[[x, i]: o[i] * x] -> sum;
-    / [k | k is number]: this * (1 / k);
-    ^ : l -> map[ / (len this)] -> vec[N];
+    / [k | k is number]: l map[/ k] -> vec[N],
+    ^ : l -> map[ / len] -> vec[N],
   };
 }
 ```
