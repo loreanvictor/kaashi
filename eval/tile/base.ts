@@ -47,8 +47,12 @@ export class Tile<T=unknown> {
         return (this.statics['#length'] as any)()
       } else if (Object.keys(this.statics).includes(key as any)) {
         return this.statics[key as any]()
-      } else if (typeof key === 'number' && key < 0 && (this.statics.length + key) in this.statics) {
-        return this.statics[this.statics.length + key]()
+      } else if (typeof key === 'number') {
+        if (key in this.statics) {
+          return this.statics[key]()
+        } else if (key < 0 && (this.statics.length + key) in this.statics) {
+          return this.statics[this.statics.length + key]()
+        }
       }
     }
 

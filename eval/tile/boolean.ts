@@ -9,7 +9,7 @@ export class BooleanOpRule implements Rule {
   constructor(readonly src: boolean, readonly op: BooleanOp) {}
 
   async matches(...indices: Tile<unknown>[]) {
-    if (indices.length > 1) {
+    if (indices.length < 1) {
       return false
     }
 

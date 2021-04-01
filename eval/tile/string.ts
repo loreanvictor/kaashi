@@ -11,7 +11,7 @@ export type StringComp = (a: string, b: string) => boolean
 export abstract class StringRule implements Rule {
   abstract value(...indices: Tile<unknown>[]): Promise<Tile<any>>
   async matches(...indices: Tile<unknown>[]) {
-    if (indices.length > 1) {
+    if (indices.length < 1) {
       return false
     }
 

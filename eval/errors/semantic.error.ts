@@ -2,6 +2,8 @@ import { Node } from 'ohm-js'
 
 
 export class SemanticError extends Error {
+  readonly rootMessage: string
+
   constructor(
     readonly root: string | Error,
     readonly ref?: Node,
@@ -19,5 +21,7 @@ export class SemanticError extends Error {
         : ''
       )
     )
+
+    this.rootMessage = typeof root === 'string' ? root : root.message
   }
 }

@@ -1,6 +1,6 @@
 {
   y: {
-    b x.a -> postfix    | x[-2] > 32,
+    b x.a -> postfix    | x[-2] > 3,
     42                  | otherwise
   },
   x: {

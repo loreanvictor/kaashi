@@ -10,7 +10,7 @@ export type NumericComp = (a: number, b: number) => boolean
 export abstract class NumericRule implements Rule {
   abstract value(...indices: Tile<unknown>[]): Promise<Tile<any>>
   async matches(...indices: Tile<unknown>[]) {
-    if (indices.length > 1) {
+    if (indices.length < 1) {
       return false
     }
 

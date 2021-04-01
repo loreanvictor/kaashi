@@ -1,7 +1,6 @@
 Kaashi {
   Program = Import* Expr
 
-
   Import = Extract_import | Alias_import
   Extract_import = from_directive address import name (arg_sep name)*
   Alias_import = import_directive address as name
@@ -16,13 +15,12 @@ Kaashi {
        | "'" | "\""
        )+
 
-
-  Expr = Block
-       | Pattern
-       | Lambda
+  Expr = Lambda
        | Pipeline
        | Operation
        | Access
+       | Block
+       | Pattern
        | Paranthesis
        | Atomic
 
@@ -30,18 +28,12 @@ Kaashi {
   Block = open_block (Rule block_sep)* Rule? close_block
 
   Rule = Parametric_rule
-       | Parametric_extension_rule
        | Key_rule
-       | Key_extension_rule
        | Constant_rule
-       | Constant_extension_rule
        | Expr
 
-  Parametric_extension_rule = Args+ extend Expr
-  Key_extension_rule = name extend Expr
-  Constant_extension_rule = Value extend Expr
 
-  Parametric_rule = name? Args+ define Expr
+  Parametric_rule = Args define Expr
   Key_rule = name define Expr
   Constant_rule = Value define Expr
 
@@ -51,7 +43,7 @@ Kaashi {
   Condition = subject_to (Expr | otherwise)
 
 
-  Lambda = Args+ define Expr
+  Lambda = Args define Expr
 
   Args = open_index (Arg arg_sep)* Arg close_index
   Arg = Destructuring_arg
@@ -73,7 +65,9 @@ Kaashi {
 
   Operation = Operand (Operation | Operand)
   Operand = ~pipe
-          ( Access
+          ( Block
+          | Pattern
+          | Access
           | Atomic
           | Paranthesis
           )
@@ -81,8 +75,10 @@ Kaashi {
   Access = Index | Attr
   Attr = (Access | Index_operand) access name
   Index = (Access | Index_operand) open_index (Expr arg_sep)* Expr close_index
-  Index_operand = Atomic
+  Index_operand = Block
+                | Pattern
                 | Paranthesis
+                | Atomic
   
   Paranthesis = open_paran Expr close_paran
 
@@ -152,7 +148,6 @@ Kaashi {
   open_paran = "("
   close_paran = ")"
   define = ":"
-  extend = "::"
   access = "."
   rest = "..."
   pipe = "->"

@@ -18,6 +18,8 @@ format for that particular platform.
 
 - Simple config:
 ```js
+@from https://kaashi.dev/date import formatDate
+
 {
   prod: true;
   root: $PWD + './dist';
@@ -32,19 +34,16 @@ format for that particular platform.
   //
   logFormat: {
     warning: [msg, time]: 'WARNING: ' + msg;
-    error: [msg, time]: `ERROR ({time format['yy/MM/dd; hh:MM']}): {msg}`;
+    error: [msg, time]: `ERROR ({time formatDate['yy/MM/dd; hh:MM']}): {msg}`;
   };
-
-  //
-  // importing
-  //
-  format: formatDate @from['https://kaashi.dev/date.ka'];
 }
 ```
 <br>
 
 - Data fetching / processing:
 ```js
+@import https://kaashi.dev/csv as CSV
+
 {
   //
   // import useful functions
@@ -59,7 +58,6 @@ format for that particular platform.
   //
   // import data
   //
-  CSV: @from['https://kaashi.dev/csv.ka'];
 
   DATA: CSV['https://my.cluster.cloud/logs/cpu.csv'];
   NODES: CSV['https://my.clusetr.cloud/topology/nodes'];
@@ -95,16 +93,6 @@ More abstract examples to demonstrate syntactic capabilities:
 
 ```js
 {
-  fib[1]: 1;
-  fib[2]: 1;
-  fib[n | (n is number) and (n > 2)]: fib[n - 1] + fib[n - 2];
-}
-```
-
-Alternative definition:
-
-```js
-{
   fib[n | (n is number) and (n > 0)]: {
     1                         | n = 1;
     1                         | n = 2;
@@ -130,13 +118,15 @@ Alternative definition:
   /*
    * mapping
    */
-  map[F][l][i | (i is number) and (i < l.length)]: F[l[i], i];
-  map[F][l]:: { length: l.length };                               // --> object extension
+  map: [F]: [l]: {
+    length: l.length,
+    [i | (i is number) and (i < l.length)]: F[l[i], i]
+  }
 
   /*
    * filtering
    */
-  filter[F]: {
+  filter: [F]: {
     [{x, ...rest}]: {
       { x, ...filter[F][rest] }  | x is F;                        // --> this is equivalent to `F[x]` or `x F` or `x --> F`
       filter[F][rest]            | otherwise;
@@ -148,7 +138,7 @@ Alternative definition:
   /*
    * reduce function
    */
-  reduce[F, I (default 0)]: {
+  reduce: [F, I (default 0)]: {
     [{}]: I;
     [{x, ...rest}]: F[reduce[F, I][rest], x];
   };
@@ -182,7 +172,7 @@ Alternative definition:
     [{...left, ...right}]: merge[left sort, right sort];
   };
 
-  contains[x]: {                       // --> is `true` if given sorted list contains `x`, `false` otherwise
+  contains: [x]: {                      // --> is `true` if given sorted list contains `x`, `false` otherwise
     [{}]: false;                       // --> empty list doesn't contain x
     [{...left, center, ...right}]: {   // --> basically, binary searching
       true              | x = center;
@@ -198,15 +188,16 @@ Alternative definition:
 - A geometric vector _type_:
 
 ```js
-{
-  sqrt: sqrt @from['https://some.server/math.ka'];
-  { map: map, sum: sum }: @from['./array-operations.ka'];
+@from https://some.server/math import sqrt
+@from ./array-operations.ka import map, sum
 
-  vec[N | N is number]
-     [l | l.length = N]: {
+{
+  vec:
+    [N | N is number]:
+    [l | l.length = N]: {
     dimension: N;
-    len: l --> map[^ 2] -> sum -> sqrt;
-    
+    len: l -> map[^ 2] -> sum -> sqrt;
+
     + [o | o.dimension = N]: l map[[x, i]: o[i] + x] -> vec[N];
     + :: this;
 
@@ -219,46 +210,6 @@ Alternative definition:
     / [k | k is number]: this * (1 / k);
     ^ : l -> map[ / (len this)] -> vec[N];
   };
-
-  vec[2][{x, y}]:: {x: x, y: y};
-}
-```
-
-<br>
-
-- Operator overloading for achieving _function_ combination via standard mathematical syntax:
-
-```js
-// combinable.ka
-{
-  combinable: {
-    o[F][x]: F[this[x]];
-  }
-}
-```
-```js
-{
-  F[X]: X + 3; // --> or any arbitrary function
-  G[X]: X * 2; // --> or any arbitrary function
-
-  F::combinable @from['./combinable.ka'];
-  G::combinable @from['./combinable.ka'];
-
-  H: F o G;     // --> H[X]: (3 * x) + 2;
-}
-```
-Alternative short-hand for `combinable.ka`:
-```js
-{
-  combinable: {
-    o[F][x]: x -> this -> F;
-
-    //
-    // so some explanation here:
-    // `a b c` is mostly equivalent to `c[b][a]` (or `c.b[a]` if `b` is key of `c` and so on)
-    // `a -> b -> c` is equivalent to `c[b[a]]`
-    //
-  }
 }
 ```
 
@@ -284,27 +235,7 @@ We want Kāshi to provide:
     reduce[word, {}]: { key: word, sum: 0 };
   }
   ```
-3. **Syntactic Flexibility** \
-  Kāshi should have minimal but highly combinable syntax rules, which allow exceeding flexibility on defining custom operations suitable
-  for particular domains of applicability. The _geometric vector_ and _function combination notation_ in [inspiring examples](#inspiring-examples)
-  are examples of this flexibility. For another example, consider the following:
-  ```js
-  index[x][l]: ...        // computes index of x in l
-  ```
-  ```js
-  of_able: { of[x]: this -> x };
-  in_able: { in[x]: this -> x };
-  ```
-  ```js
-  X: ...                  // some value
-  L: ...                  // some list
-
-  X::of_able;             // extend X to enable `of X` syntax
-  L::in_able;             // extend L to enable `in L` syntax
-
-  I: (index of X) in L;   // customized syntax
-  ```
-4. **Computational Limitability** \
+3. **Computational Limitability** \
   Kāshi's syntax should allow for syntactic checks that limit computational complexity of evaluating described data, without
   forcing unintuitive representation of computations within such a complexity bound. Most notably, it is highly desirable
   that _useful_ total functions have intuitive representations in Kāshi that can be syntactically proven to be total (ideally
@@ -335,10 +266,19 @@ So if you have time and interest in helping with this project, all kinds of help
 
 To run the current stuff, clone the repo and do the following:
 
-```bash
-npm ci
-npm test
-```
+1. Install dependencies:
+  ```bash
+  npm ci
+  ```
+2. Run the REPL:
+  ```bash
+  npm test
+  ```
+3. Or run the REPL with a given file:
+  ```bash
+  npm test samples-codes/fact.ka
+  ```
+
 
 Since the project is in ideation stage, everything is open for discussion. Do not hesitate to open an issue for any form of question / feedback / etc. Also you can contact me on ghanizadeh.eugene@gmail.com.
 

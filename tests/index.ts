@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs'
 import { createInterface } from 'readline'
+import { redBright, blueBright, gray } from 'chalk'
 import { evaluate } from '../eval'
 import { empty, extend } from '../eval/context'
 
@@ -8,25 +9,32 @@ const readline = createInterface({
   output: process.stdout
 })
 
-let context = empty()
 
-if (process.argv[2]) {
-  const code = readFileSync(process.argv[2]).toString()
-  context = extend(context, evaluate(code))
-}
+const context = (
+  process.argv[2]
+  ? extend(empty(), evaluate(readFileSync(process.argv[2]).toString()))
+  : empty()
+)
 
-readline.setPrompt('$ ')
+readline.setPrompt(blueBright('Kāshi > '))
 readline.prompt()
 readline.on('line', async line => {
-  readline.pause()
-  try {
-    const tile = evaluate(line, context)
-    const val = await tile.value()
-    console.log(val)
-  } catch (err) {
-    console.log(err.message)
-  } finally {
+  if (line) {
+    readline.pause()
+    try {
+      console.log(await evaluate(line, context).value())
+    } catch (err) {
+      if (err.rootMessage) {
+        console.log(redBright(err.rootMessage))
+        console.log(gray(err.ref.source.getLineAndColumnMessage()))
+      } else {
+        console.log(redBright(err.message))
+      }
+    } finally {
+      readline.prompt()
+      readline.resume()
+    }
+  } else {
     readline.prompt()
-    readline.resume()
   }
 })
