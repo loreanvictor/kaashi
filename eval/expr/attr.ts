@@ -1,6 +1,5 @@
 import { Node } from 'ohm-js'
 import { EvalContext } from '../context'
-import { SemanticError } from '../errors/semantic.error'
 import { UndefinedVariable } from '../errors/undefined-variable.error'
 import { tile, Tile, unwrap } from '../tile'
 
@@ -16,7 +15,7 @@ export function evalAttr(operand: Node, name: Node, context: EvalContext, ref: N
       if (has) {
         return await operand$.get(tile(key))
       } else {
-        throw new UndefinedVariable(key, ref)
+        throw new UndefinedVariable(key, ref, context)
       }
     }
   )())

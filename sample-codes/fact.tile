@@ -1,0 +1,14 @@
+@import ./other.tile as other
+@from https://gist.githubusercontent.com/loreanvictor/321f56b756db77a070ae2e002f832b12/raw/748aef9fdabbbc9834e5501e42c9930b991bbbb4/kaashi-ri.tile import greetings as GR
+
+{
+  y: {
+    b x.a -> postfix    | x[-2] > other.threshold,
+    other.answer        | otherwise
+  },
+  x: {
+    2, 3, 4, true and false,
+    a: { b: GR }
+  },
+  postfix: + ' world!'
+}

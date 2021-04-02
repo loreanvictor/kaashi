@@ -1,12 +1,13 @@
 import { Node } from 'ohm-js'
-import { SemanticError } from './semantic.error'
+import { ErrorContext, SemanticError } from './semantic.error'
 
 
 export class UndefinedVariable extends SemanticError {
   constructor(
     readonly name: string,
-    readonly ref?: Node,
+    ref: Node,
+    context: ErrorContext,
   ) {
-    super(`${name} is not defined`, ref)
+    super(`${name} is not defined`, ref, context)
   }
 }

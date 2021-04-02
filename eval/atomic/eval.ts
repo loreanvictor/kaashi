@@ -33,7 +33,7 @@ export function Value(_) {
 }
 
 export function env(_, __) {
-  return evalEnv(this.unpacked)
+  return evalEnv(this.unpacked, this.args.context)
 }
 
 export function variable(_, __) {
