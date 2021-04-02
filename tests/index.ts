@@ -29,7 +29,7 @@ const loader: Loader = {
       if (current.startsWith('http://') || current.startsWith('https://')) {
         newaddr = new URL(address, current).href
       } else {
-        newaddr = join(current, address)
+        newaddr = join(dirname(current), address)
       }
     }
 

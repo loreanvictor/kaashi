@@ -3,8 +3,8 @@
 
 {
   y: {
-    b x.a -> postfix    | x[-2] > 31,
-    42                  | otherwise
+    b x.a -> postfix    | x[-2] > other.threshold,
+    other.answer        | otherwise
   },
   x: {
     2, 3, 4, true and false,
