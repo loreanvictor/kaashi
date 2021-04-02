@@ -43,16 +43,9 @@ format for that particular platform.
 - Data fetching / processing:
 ```js
 @import https://kaashi.dev/csv as CSV
+@from ./array-operations.ka import map, filter, sum
 
 {
-  //
-  // import useful functions
-  //
-  ops: @from['./array-operations.ka'];
-  map: ops.map;
-  filter: ops.filter;
-  sum: ops.sum;
-
   mean[l]: sum[l] / l.length;
 
   //
@@ -198,8 +191,9 @@ More abstract examples to demonstrate syntactic capabilities:
     dimension: N,
     len: l -> map[^ 2] -> sum -> sqrt,
 
-    +: [o | o.dimension = N]: l map[[x, i]: o[i] + x] -> vec[N],
-    -: [o | o.dimension = N]: l map[[x, i]: o[i] - x] -> vec[N],
+    [o | o.dimension = N]: l map[[x, i]: o[i] + x] -> vec[N],
+    +: l -> vec[N],
+    -: l map[[x]: -x] -> vec[N],
 
     *: {
       [k | k is number]: l map[* k] -> vec[N],
