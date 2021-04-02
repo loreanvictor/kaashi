@@ -1,9 +1,91 @@
-Kaashi {
+
+
+KaashiLite {
   Program = Import* Expr
 
-  Import = Extract_import | Alias_import
-  Extract_import = from_directive address import name (arg_sep name)*
-  Alias_import = import_directive address as name
+  // Lexical
+
+  //// Comments and Whitespaces
+
+  space := " " | "\t" | "\r" | "\n" | comment
+  comment = line_comment | multi_comment | endless_comment
+  line_comment = "//" (~"\n" any)*
+  multi_comment = "/*" (~"*/" any)* "*/"
+  endless_comment = "/*" (~"*/" any)*
+
+  //// Primitive Values
+
+  ///// Numbers
+
+  number = "-"? (bto | decimal)
+  bto = ddigit+ decimal?
+  decimal = "." ddigit+
+  ddigit = digit
+         | "_"
+
+  ///// Booleans
+
+  true = "true"
+  false = "false"
+  boolean = true
+          | false
+
+  ///// Strings
+
+  single_quote_string = single_quote (~single_quote any)* single_quote
+  dbl_quote_string = dbl_quote (~dbl_quote any)* dbl_quote
+
+  single_quote = "'"
+  dbl_quote = "\""
+  backtick = "`"
+
+  ///// Template (lexicons)
+
+  template_middle = close_block (~(backtick | open_block) any)* open_block
+  template_end = close_block (~(backtick | open_block) any)* backtick
+  template_start = backtick (~(backtick | open_block) any)* open_block
+  bland_template = backtick (~backtick any)* backtick
+
+  //// Identifiers
+
+  name = variable | operator
+
+  env = "$" variable
+  variable = ~reserved (var_letter (var_letter | alnum)*)
+  var_letter = "_" | letter
+  
+  operator = ~pipe
+           ( rest
+           | is | and | or | not
+           | "==" | "!=" | "=>" | "<=" | ">=" | "=<" | "&&" | "||" | "++" | "--" | "**"
+           | ">>" | "<<" | "^^" | "??" | "!!"
+           | "+" | "-" | "*" | "/" | "=" | "!" | "&" | "%" | "~" | "?" | ">" | "<"
+           | "^"
+           )
+  
+  otherwise = "otherwise"
+  and = "and"
+  or = "or"
+  not = "not"
+  is = "is"
+  default = "default"
+  reserved = otherwise | and | or | not | is | true | false | default
+  
+  pipe = "->"
+  block_sep = ";" | ","
+  arg_sep = ","
+  subject_to = "|"
+  open_block = "{"
+  close_block = "}"
+  open_index = "["
+  close_index = "]"
+  open_paran = "("
+  close_paran = ")"
+  define = ":"
+  access = "."
+  rest = "..."
+
+  ///// (Feature) Importing
 
   from_directive = "@from"
   import_directive = "@import"
@@ -15,33 +97,86 @@ Kaashi {
        | "'" | "\""
        )+
 
-  Expr = Lambda
-       | Pipeline
-       | Operation
-       | Access
-       | Block
-       | Pattern
-       | Paranthesis
-       | Atomic
+  // Parsing
 
+  //// Primitive Values
+
+  Value = boolean | number | String
+
+  String = Template_string
+         | single_quote_string
+         | dbl_quote_string
+
+  Template_string = Template | bland_template
+  Template = template_start Expr (template_middle Expr)* template_end
+
+  ///// (Feature) Importing
+
+  Import = Extract_import | Alias_import
+  Extract_import = from_directive address import name (arg_sep name)*
+  Alias_import = import_directive address as name
+
+  //// Expressions
+
+  Expr = CompoundExpr | SimpleExpr
+
+  ////// Non-conflicting Expressions
+
+  SimpleExpr =  Block | Pattern | Atomic | Paranthesis
+
+  Atomic = variable | Value | env | operator
+
+  Paranthesis = open_paran Expr close_paran
+
+  //////// Block
 
   Block = open_block (Rule block_sep)* Rule? close_block
-
-  Rule = Parametric_rule
-       | Key_rule
+  Rule = Key_rule
        | Constant_rule
        | Expr
-
-
-  Parametric_rule = Args define Expr
   Key_rule = name define Expr
   Constant_rule = Value define Expr
 
+  //////// Pattern
 
   Pattern = open_block (Matching block_sep)* Matching? close_block
   Matching = Expr Condition
   Condition = subject_to (Expr | otherwise)
 
+  ////// Conflicting Expressions
+
+  CompoundExpr = Pipeline | Operation | Access
+
+  //////// 1st Precedence, Index
+
+  Access = Index | Attr
+  Attr = (Access | Index_operand) access name
+  Index = (Access | Index_operand) open_index (Expr arg_sep)* Expr close_index
+  Index_operand = SimpleExpr
+
+  //////// 2nd Precedence, Operation
+
+  Operation = Operation_operand ( Operation | Operation_operand)
+  Operation_operand = ~pipe
+          ( SimpleExpr | Access )
+
+  //////// 3rd Precedence, Pipeline
+
+  Pipeline = (Pipeline | Pipeline_operand) pipe Pipeline_operand
+  Pipeline_operand = SimpleExpr
+                     | Access
+                     | Operation
+
+}
+
+Kaashi <: KaashiLite {
+
+  Parametric_rule = Args define Expr
+
+  Rule += Parametric_rule
+  CompoundExpr += Lambda
+
+  //////// 4th Precedence, Lambda (not in lite version)
 
   Lambda = Args define Expr
 
@@ -59,101 +194,6 @@ Kaashi {
   Default_value = open_paran default Expr close_paran
   Constant_arg = Value
 
-
-  Pipeline = (Pipeline | Pipeline_operand) pipe Pipeline_operand
-  Pipeline_operand = Operation | Operand
-
-  Operation = Operand (Operation | Operand)
-  Operand = ~pipe
-          ( Block
-          | Pattern
-          | Access
-          | Atomic
-          | Paranthesis
-          )
-  
-  Access = Index | Attr
-  Attr = (Access | Index_operand) access name
-  Index = (Access | Index_operand) open_index (Expr arg_sep)* Expr close_index
-  Index_operand = Block
-                | Pattern
-                | Paranthesis
-                | Atomic
-  
-  Paranthesis = open_paran Expr close_paran
-
-  Atomic = variable | Value | env | operator
-  name = variable | operator
-  
-  env = "$" variable
-  variable = ~reserved (var_letter (var_letter | alnum)*)
-  var_letter = "_" | letter
-
-  Value = boolean | number | String
-
-  String = Template_string
-         | single_quote_string
-         | dbl_quote_string
-
-  Template_string = Template | bland_template
-  Template = template_start Expr (template_middle Expr)* template_end
-  
-  template_middle = close_block (~(backtick | open_block) any)* open_block
-  template_end = close_block (~(backtick | open_block) any)* backtick
-  template_start = backtick (~(backtick | open_block) any)* open_block
-  bland_template = backtick (~backtick any)* backtick
-  
-  single_quote_string = single_quote (~single_quote any)* single_quote
-  dbl_quote_string = dbl_quote (~dbl_quote any)* dbl_quote
-  
-  single_quote = "'"
-  dbl_quote = "\""
-  backtick = "`"
-  
-  number = "-"? (bto | decimal)
-  bto = ddigit+ decimal?
-  decimal = "." ddigit+
-  ddigit = digit
-         | "_"
-  
-  boolean = true
-          | false
-  
-  operator = ~pipe
-           ( rest
-           | is | and | or | not
-           | "==" | "!=" | "=>" | "<=" | ">=" | "=<" | "&&" | "||" | "++" | "--" | "**"
-           | ">>" | "<<" | "^^" | "??" | "!!"
-           | "+" | "-" | "*" | "/" | "=" | "!" | "&" | "%" | "~" | "?" | ">" | "<"
-           | "^"
-           )
-  
-  otherwise = "otherwise"
-  and = "and"
-  or = "or"
-  not = "not"
-  is = "is"
-  true = "true"
-  false = "false"
-  default = "default"
-  reserved = otherwise | and | or | not | is | true | false | default
-  
-  block_sep = ";" | ","
-  arg_sep = ","
-  subject_to = "|"
-  open_block = "{"
-  close_block = "}"
-  open_index = "["
-  close_index = "]"
-  open_paran = "("
-  close_paran = ")"
-  define = ":"
-  access = "."
-  rest = "..."
-  pipe = "->"
-  space := " " | "\t" | "\r" | "\n" | comment
-  comment = line_comment | multi_comment | endless_comment
-  line_comment = "//" (~"\n" any)*
-  multi_comment = "/*" (~"*/" any)* "*/"
-  endless_comment = "/*" (~"*/" any)*
 }
+
+
