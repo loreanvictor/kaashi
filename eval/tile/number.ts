@@ -1,6 +1,5 @@
-import { Rule, Tile } from './base'
+import { Rule, Tile, ruleset } from './base'
 import { BooleanTile } from './boolean'
-import { ruleset } from './ruleset'
 
 
 export type NumericOp = (a: number, b: number) => number
@@ -9,13 +8,8 @@ export type NumericComp = (a: number, b: number) => boolean
 
 export abstract class NumericRule implements Rule {
   abstract value(...indices: Tile<unknown>[]): Promise<Tile<any>>
-  async matches(...indices: Tile<unknown>[]) {
-    if (indices.length < 1) {
-      return false
-    }
-
-    const val = await indices[0].value()
-    return typeof val === 'number'
+  async matches(index) {
+    return !!index && typeof await index.value() === 'number'
   }
 }
 
@@ -25,8 +19,8 @@ export class NumericOpRule extends NumericRule {
     super()
   }
 
-  async value(...indices: Tile<unknown>[]){
-    return new NumberTile(this.op(await indices[0].value() as number, this.src))
+  async value(index){
+    return new NumberTile(this.op(await index.value() as number, this.src))
   }
 }
 

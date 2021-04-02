@@ -2,11 +2,12 @@ Kaashi {
   Program = Import* Expr
 
   Import = Extract_import | Alias_import
-  Extract_import = from_directive address import name (arg_sep name)*
-  Alias_import = import_directive address as name
+  Extract_import = from_directive address import name Alias? (arg_sep name Alias?)*
+  Alias_import = import_directive address Alias
 
   from_directive = "@from"
   import_directive = "@import"
+  Alias = as name
   as = "as"
   import = "import"
   address = (alnum

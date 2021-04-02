@@ -1,7 +1,6 @@
-import { Rule, Tile } from './base'
+import { Rule, Tile, ruleset } from './base'
 import { BooleanTile } from './boolean'
-import { NumberTile, NumericRule } from './number'
-import { ruleset } from './ruleset'
+import { NumberTile } from './number'
 
 
 export type StringOp = (a: string, b: string) => string
@@ -10,13 +9,8 @@ export type StringComp = (a: string, b: string) => boolean
 
 export abstract class StringRule implements Rule {
   abstract value(...indices: Tile<unknown>[]): Promise<Tile<any>>
-  async matches(...indices: Tile<unknown>[]) {
-    if (indices.length < 1) {
-      return false
-    }
-
-    const val = await indices[0].value()
-    return typeof val === 'string'
+  async matches(index) {
+    return !!index && typeof await index.value() === 'string'
   }
 }
 
@@ -26,8 +20,8 @@ export class StringOpRule extends StringRule {
     super()
   }
 
-  async value(...indices: Tile<unknown>[]){
-    return new StringTile(this.op(await indices[0].value() as string, this.src))
+  async value(index){
+    return new StringTile(this.op(await index.value() as string, this.src))
   }
 }
 
@@ -37,17 +31,39 @@ export class StringCompRule extends StringRule {
     super()
   }
 
-  async value(...indices: Tile<unknown>[]){
-    return new BooleanTile(this.op(await indices[0].value() as string, this.src))
+  async value(index){
+    return new BooleanTile(this.op(await index.value() as string, this.src))
   }
 }
 
 
-export class IndexRule extends NumericRule {
-  constructor(readonly src: string) { super() }
+export class IndexRule {
+  constructor(readonly src: string) { }
 
-  async value(...indices: Tile<unknown>[]) {
-    return new StringTile(this.src[this.normalize(await indices[0].value() as number)])
+  async matches(index, end) {
+    if (!index) {
+      return false
+    }
+
+    const val = await index.value()
+    return (
+      typeof val === 'number'
+      && (
+        (val >= 0 && val < this.src.length)
+        || (val < 0 && val >= -this.src.length)
+      )
+      && (!end || typeof await end.value() === 'number')
+    )
+  }
+
+  async value(index, end) {
+    if (end) {
+      const s = this.normalize(await index.value())
+      const e = this.normalize(await end.value())
+      return new StringTile(this.src.substr(Math.min(s, e), Math.max(s, e)))
+    } else {
+      return new StringTile(this.src[this.normalize(await index.value())])
+    }
   }
 
   normalize(index: number) {

@@ -1,6 +1,5 @@
 import { Node } from 'ohm-js'
 
-import { tile as Tile } from '../tile'
 
 export function Key_rule(name: Node, _, expr: Node) {
   const { tile, context } = this.args
@@ -13,5 +12,4 @@ export function Key_rule(name: Node, _, expr: Node) {
 export function Expr(_) {
   const { tile, context } = this.args
   tile.push(() => this.eval(context))
-  tile.set('length', () => Tile(tile.statics.length))
 }

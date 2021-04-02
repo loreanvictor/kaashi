@@ -19,7 +19,7 @@ export function Pipeline(_, __, ___) {
 
 export function Operation(_, __) {
   const { left, right, keycheck } = this.unpacked
-  return evalOperation(left, right, keycheck, this.args.context)
+  return evalOperation(left, right, keycheck, this.args.context, this)
 }
 
 export function Access(_) {

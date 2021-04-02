@@ -1,5 +1,4 @@
-import { Rule, Tile } from './base'
-import { ruleset } from './ruleset'
+import { Rule, Tile, ruleset } from './base'
 
 
 export type BooleanOp = (a: boolean, b: boolean) => boolean
@@ -8,17 +7,12 @@ export type BooleanOp = (a: boolean, b: boolean) => boolean
 export class BooleanOpRule implements Rule {
   constructor(readonly src: boolean, readonly op: BooleanOp) {}
 
-  async matches(...indices: Tile<unknown>[]) {
-    if (indices.length < 1) {
-      return false
-    }
-
-    const val = await indices[0].value()
-    return typeof val === 'boolean'
+  async matches(index) {
+    return !!index && typeof await index.value() === 'boolean'
   }
 
-  async value(...indices: Tile<unknown>[]) {
-    return new BooleanTile(this.op(await indices[0].value() as boolean, this.src))
+  async value(index) {
+    return new BooleanTile(this.op(await index.value() as boolean, this.src))
   }
 }
 

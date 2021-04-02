@@ -14,11 +14,7 @@ export function evalIndex(operand: Node, indices: Node[], context: EvalContext, 
           ...indices.map(index => index.eval(context))
         )
       } catch (err) {
-        if (!err.ref) {
-          throw new SemanticError(err, ref)
-        } else {
-          throw err
-        }
+        throw new SemanticError(err, ref, context)
       }
     }
   )())

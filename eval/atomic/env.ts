@@ -1,7 +1,8 @@
 import { Node } from 'ohm-js'
-import { tile } from '../tile'
+import { EvalContext } from '../context'
+import { unwrap } from '../tile'
 
 
-export function evalEnv(node: Node) {
-  return tile(process.env[node.sourceString])
+export function evalEnv(node: Node, context: EvalContext) {
+  return unwrap(context.evalEnv(node.sourceString))
 }

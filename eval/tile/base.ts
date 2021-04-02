@@ -1,6 +1,7 @@
 import { NoMatchingRule } from './errors/no-matching-rule.error'
 import { NotPrimitive } from './errors/not-primitive.error'
 
+
 export interface Rule<O=any> {
   matches(...indices: Tile<unknown>[]): Promise<boolean>
   value(...indices: Tile<unknown>[]): Promise<Tile<O>>
@@ -8,12 +9,54 @@ export interface Rule<O=any> {
 
 export class Tile<T=unknown> {
   static wrap: <U>(_: U) => Tile<U>
+  static unwrap: <U>(_: Promise<Tile<U>>) => Tile<U>
 
   statics: any[] = []
   rules: Rule[] = []
 
+  constructor() {
+    this.set('in', () => ruleset({
+      matches: async (index) => !!index,
+      value: async (index) => {
+        try {
+          return Tile.wrap(await this.has(await index.value() as any))
+        } catch(err) {
+          return Tile.wrap(false)
+        }
+      }
+    }))
+
+    this.set('match', () => ruleset({
+      matches: async (index) => !!index,
+      value: async (index) => {
+        for (let rule of this.rules) {
+          if (await rule.matches(index)) {
+            return Tile.wrap(true)
+          }
+        }
+
+        return Tile.wrap(false)
+      }
+    }))
+
+    this.set('or', () => ruleset({
+      matches: async (index) => !!index,
+      value: async () => this,
+    }))
+  }
+
   async has(key: string | number | boolean) {
-    return (key as any) in this.statics
+    if ((key as any) in this.statics) {
+      return true
+    }
+
+    if (typeof key === 'number') {
+      const length = await this.length()
+      return (key >= 0 && key < length) ||
+            (key < 0 && key >= -length)
+    }
+
+    return false
   }
 
   set(key: string | number | boolean, value: () => Tile<unknown>) {
@@ -26,14 +69,23 @@ export class Tile<T=unknown> {
 
   push(value: () => Tile<unknown>) {
     this.statics.push(value)
+    this.set('length', () => Tile.wrap(this.statics.length))
   }
 
   add(rule: Rule) {
     this.rules.unshift(rule)
   }
 
+  async length() {
+    if ('#length' in this.statics) {
+      return await (this.statics['#length'] as any)().value()
+    }
+
+    return this.statics.length
+  }
+
   _(...indices: any[]) {
-    return unwrap(this.get(...indices.map(i => Tile.wrap(i))))
+    return Tile.unwrap(this.get(...indices.map(i => Tile.wrap(i))))
   }
 
   async get(...indices: Tile<unknown>[]): Promise<Tile<unknown> | undefined> {
@@ -50,15 +102,18 @@ export class Tile<T=unknown> {
       } else if (typeof key === 'number') {
         if (key in this.statics) {
           return this.statics[key]()
-        } else if (key < 0 && (this.statics.length + key) in this.statics) {
-          return this.statics[this.statics.length + key]()
+        } else {
+          const length = await this.length() as number
+          if (key < 0 && (length + key) in this.statics) {
+            return this.statics[this.statics.length + key]()
+          }
         }
       }
     }
 
     for (let rule of this.rules) {
       if(await rule.matches(...indices)) {
-        return unwrap(rule.value(...indices))
+        return Tile.unwrap(rule.value(...indices))
       }
     }
 
@@ -70,25 +125,13 @@ export class Tile<T=unknown> {
   }
 }
 
-
-class UnwrappedTile<T> extends Tile<T> {
-  constructor(readonly core: Promise<Tile<T>>) {
+export class RuleSetTile extends Tile<unknown> {
+  constructor(readonly rules: Rule[]) {
     super()
-  }
-
-  async get(...indices: Tile<unknown>[]) {
-    return (await this.core).get(...indices)
-  }
-
-  async has(key: string | number | boolean) {
-    return (await this.core).has(key)
-  }
-
-  async value(): Promise<T> {
-    return (await this.core).value()
+    rules.forEach(rule => this.add(rule))
   }
 }
 
-export function unwrap<T=unknown>(t: Promise<Tile<T>>): Tile<T> {
-  return new UnwrappedTile(t)
+export function ruleset(...rules: Rule[]) {
+  return new RuleSetTile(rules)
 }
